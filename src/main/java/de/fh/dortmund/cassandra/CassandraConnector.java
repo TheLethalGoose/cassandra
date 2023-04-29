@@ -12,6 +12,9 @@ public class CassandraConnector {
         cluster = Cluster.builder().addContactPoint(node).withPort(port).build();
         session = cluster.connect();
 
+        System.out.println("Connected to cluster: "
+                + session.getCluster().getClusterName());
+
         String createKeyspace = "CREATE KEYSPACE IF NOT EXISTS stackoverflow WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1}";
         session.execute(createKeyspace);
         session.execute("USE " + keyspace);
