@@ -13,6 +13,7 @@ public class Timer {
 	}
 
 	public long getElapsedTime() {
+		stop();
 		return endTime - startTime;
 	}
 
