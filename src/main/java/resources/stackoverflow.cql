@@ -1,11 +1,4 @@
-DROP TABLE IF EXISTS stackoverflow.user;
-DROP TABLE IF EXISTS stackoverflow.user_by_email;
-DROP TABLE IF EXISTS stackoverflow.answers_by_question;
-DROP TABLE IF EXISTS stackoverflow.question;
-DROP TABLE IF EXISTS stackoverflow.questions_by_tag;
-DROP TABLE IF EXISTS stackoverflow.latest_questions;
-
-CREATE TABLE stackoverflow.latest_questions
+CREATE TABLE IF NOT EXISTS stackoverflow.latest_questions
 (
     yymmdd     text,
 
@@ -23,7 +16,28 @@ CREATE TABLE stackoverflow.latest_questions
     PRIMARY KEY ((yymmdd), createdAt, idQuestion)
     ) WITH CLUSTERING ORDER BY (createdAt DESC, idQuestion ASC);
 
-CREATE TABLE stackoverflow.questions_by_tag
+CREATE TABLE IF NOT EXISTS stackoverflow.question
+(
+    idQuestion       uuid,
+
+    createdAt        timestamp,
+    lastModifiedAt   timestamp,
+
+    createdBy          uuid,
+    title            text,
+    content          text,
+
+    votes            int,
+    views            int,
+
+    tags             set<text>,
+    linkedQuestions  set<uuid>,
+    relatedQuestions set<uuid>,
+
+    PRIMARY KEY ((idQuestion))
+);
+
+CREATE TABLE IF NOT EXISTS stackoverflow.questions_by_tag
 (
     tagName            text,
 
@@ -45,27 +59,7 @@ CREATE TABLE stackoverflow.questions_by_tag
     PRIMARY KEY ((tagName), questionCreatedAt, idQuestion)
     ) WITH CLUSTERING ORDER BY (questionCreatedAt DESC, idQuestion ASC);
 
-CREATE TABLE stackoverflow.question
-(
-    idQuestion       uuid,
-
-    createdAt        timestamp,
-    lastModifiedAt   timestamp,
-
-    creator          uuid,
-    content          text,
-
-    votes            int,
-    views            int,
-
-    tags             set<text>,
-    linkedQuestions  set<uuid>,
-    relatedQuestions set<uuid>,
-
-    PRIMARY KEY ((idQuestion))
-    );
-
-CREATE TABLE stackoverflow.answers_by_question
+CREATE TABLE IF NOT EXISTS stackoverflow.answers_by_question
 (
     idParent  uuid,
 
@@ -80,7 +74,7 @@ CREATE TABLE stackoverflow.answers_by_question
     PRIMARY KEY ((idParent), idAnswer, createdAt, accepted)
     ) WITH CLUSTERING ORDER BY (idAnswer ASC, createdAt DESC, accepted DESC);
 
-CREATE TABLE stackoverflow.user_by_email
+CREATE TABLE IF NOT EXISTS stackoverflow.user_by_email
 (
     email    text,
 
@@ -90,7 +84,7 @@ CREATE TABLE stackoverflow.user_by_email
     PRIMARY KEY ((email))
     );
 
-CREATE TABLE stackoverflow.user
+CREATE TABLE IF NOT EXISTS stackoverflow.user
 (
     idUser     uuid,
 
