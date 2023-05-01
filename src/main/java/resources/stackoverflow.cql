@@ -46,8 +46,8 @@ CREATE TABLE IF NOT EXISTS stackoverflow.questions_by_tag
 
     idTag              uuid STATIC,
     tagInfo            text,
-    tagRelatedTags     text,
-    tagSynonyms        text,
+    tagRelatedTags     set<text>,
+    tagSynonyms        set<text>,
 
     questionCreatedBy  uuid STATIC,
     questionTitle      text,

@@ -8,12 +8,14 @@ import de.fh.dortmund.service.POST;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 public class QuestionGenerator {
 
 	static Faker faker = new Faker();
 	static Timer timer = new Timer();
+	static Random random = new Random();
 
 	public static void generateQuestions(Session session, int amount, List<User> users) {
 
@@ -24,10 +26,12 @@ public class QuestionGenerator {
 
 		POST POST = new POST(session, false);
 		int randomIndex = (int)(Math.random() * users.size());
-		int tagsToGenerate = (int)(Math.random() * 10);
+
 
 		timer.start();
 		for (int i = 0; i < amount; i++) {
+
+			int tagsToGenerate = random.nextInt(10) + 1;
 
 			String title = faker.lorem().sentence();
 			String body = faker.lorem().paragraph();
