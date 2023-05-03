@@ -18,6 +18,10 @@ public class Question extends Post {
         super(userId, content, PostType.QUESTION, null);
         this.title = title;
     }
+    public Question(String userId, String title, String content, String createdAt, String modifiedAt) {
+        super(userId, content, PostType.QUESTION, null, createdAt, modifiedAt);
+        this.title = title;
+    }
     @Override
     public String toString() {
         return "Question{" +
