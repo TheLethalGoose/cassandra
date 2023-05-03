@@ -35,7 +35,7 @@ public class QuestionGenerator {
 
 			String title = faker.lorem().sentence();
 			String body = faker.lorem().paragraph();
-			String userId = users.get(randomIndex).getIdUser();
+			String userId = users.get(randomIndex).getId();
 			int views = faker.number().numberBetween(0, 10000);
 			int votes = faker.number().numberBetween(-100, 10000);
 
@@ -49,7 +49,7 @@ public class QuestionGenerator {
 				tagsToQuestion.add(newTag);
 			}
 
-			Question newQuestion = new Question(userId, body, title);
+			Question newQuestion = new Question(userId, title, body);
 			questions.add(newQuestion);
 			POST.createQuestion(newQuestion, tagsToQuestion, views, votes);
 

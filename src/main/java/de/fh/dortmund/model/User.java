@@ -1,28 +1,36 @@
 package de.fh.dortmund.model;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
 public class User {
-    private String idUser = UUID.randomUUID().toString();
+    @SerializedName("Id")
+    private String id = UUID.randomUUID().toString();
 
+    @SerializedName("Email")
     private String email;
 
+    @SerializedName("Password")
     private String password;
 
-    private String reputation;
+    @SerializedName("Reputation")
+    private int reputation;
 
+    @SerializedName("Username")
     private String username;
 
-    public User(String email, String password, String username){
+    private List<Tag> tagWatches;
+
+    public User(String email, String password, String username) {
         this.email = email;
         this.password = password;
         this.username = username;
     }
-
-    public User(String email, String password, String username, String reputation){
+    public User(String email, String password, String username, int reputation) {
         this.email = email;
         this.password = password;
         this.username = username;

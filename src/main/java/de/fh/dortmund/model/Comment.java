@@ -1,10 +1,11 @@
 package de.fh.dortmund.model;
 
+import de.fh.dortmund.model.enums.PostType;
 import lombok.Data;
 
 @Data
-public class Comment extends Post{
-    public Comment(String idParent, String idUser, String content){
-        super(PType.COMMENT, idUser, content, idParent);
+public class Comment extends Post {
+    public Comment(String userId, String content, String parentPostId) {
+        super(userId, content, PostType.COMMENT, parentPostId);
     }
 }

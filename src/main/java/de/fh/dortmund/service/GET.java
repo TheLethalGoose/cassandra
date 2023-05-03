@@ -9,6 +9,7 @@ import de.fh.dortmund.json.JsonConverter;
 import de.fh.dortmund.model.Question;
 import de.fh.dortmund.model.Tag;
 import de.fh.dortmund.model.User;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -19,7 +20,7 @@ public class GET extends REST {
     }
 
     public JsonArray getTagsFromQuestion(Question question){
-        return getTagsFromQuestion(UUID.fromString(question.getIdPost()));
+        return getTagsFromQuestion(UUID.fromString(question.getId()));
     }
     public JsonArray getTagsFromQuestion(UUID idQuestion){
         PreparedStatement getTagsFromQuestionStatement = session.prepare("SELECT tags FROM stackoverflow.questions WHERE idQuestion = ?");

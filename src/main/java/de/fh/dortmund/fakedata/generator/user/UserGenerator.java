@@ -24,7 +24,7 @@ public class UserGenerator{
 			String username = faker.name().username();
 			String password = faker.internet().password();
 			String email = faker.internet().emailAddress();
-			String reputation = String.valueOf(faker.number().numberBetween(0, 10000));
+			int reputation = faker.number().numberBetween(0, 10000);
 
 			User newUser = new User(username, password, email, reputation);
 			users.add(newUser);

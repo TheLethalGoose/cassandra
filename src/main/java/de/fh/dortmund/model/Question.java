@@ -1,26 +1,31 @@
 package de.fh.dortmund.model;
 
-import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
+import de.fh.dortmund.model.enums.PostType;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode(callSuper = true)
+
 @Data
-public class Question extends Post{
+public class Question extends Post {
+
     @SerializedName("Title")
     private String title;
 
     @SerializedName("Views")
     private int views;
 
-    public Question(String idUser, String content, String title){
-        super(PType.QUESTION, idUser, content, "0");
+    public Question(String userId, String title, String content) {
+        super(userId, content, PostType.QUESTION, null);
         this.title = title;
     }
-    public Question(JsonElement jsonElement){
-        super(jsonElement);
-        this.title = jsonElement.getAsJsonObject().get("Title").getAsString();
-        this.views = jsonElement.getAsJsonObject().get("Views").getAsInt();
+    @Override
+    public String toString() {
+        return "Question{" +
+                "id='" + getId().substring(0, 7) + "[...]" + '\'' +
+                ", title='" + getTitle() + '\'' +
+                ", content='" + getContent().substring(0, 5) + "[...]" + '\'' +
+                ", createdAt='" + getCreatedAt() + '\'' +
+                ", modifiedAt='" + getModifiedAt() + '\'' +
+                '}';
     }
 }

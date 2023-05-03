@@ -8,7 +8,8 @@ import de.fh.dortmund.model.Question;
 import de.fh.dortmund.model.User;
 import de.fh.dortmund.service.POST;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AnswerGenerator {
 
@@ -37,7 +38,7 @@ public class AnswerGenerator {
             Question question = questions.get(randomQuestionIndex);
             int votes = faker.number().numberBetween(-100, 1000);
 
-            Answer newAnswer = new Answer(question.getIdPost(), user.getIdUser(), answerText);
+            Answer newAnswer = new Answer(user.getId(), question.getId(), answerText);
             answers.add(newAnswer);
 
             POST.createAnswer(newAnswer , question, votes);

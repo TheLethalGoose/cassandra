@@ -7,28 +7,23 @@ import java.util.UUID;
 
 @Data
 public class Tag {
-    private String idTag = UUID.randomUUID().toString();
+    @SerializedName("Id")
+    private String id = UUID.randomUUID().toString();
 
-    @SerializedName("TagName")
-    private String tagName;
+    @SerializedName("Name")
+    private String name;
+
     @SerializedName("Info")
     private String info;
 
-    public Tag(String tagName, String info){
-        this.tagName = tagName;
+    private String questionId;
+
+    public Tag(String tagName, String info) {
+        this.name = tagName;
         this.info = info;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Tag tag)) return false;
-
-        return getTagName().equals(tag.getTagName());
+    public Tag() {
     }
 
-    @Override
-    public int hashCode() {
-        return getTagName().hashCode();
-    }
 }

@@ -4,7 +4,6 @@ import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import de.fh.dortmund.json.JsonConverter;
@@ -13,6 +12,7 @@ import de.fh.dortmund.model.Question;
 import de.fh.dortmund.model.User;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class DELETE extends REST{
@@ -22,20 +22,20 @@ public class DELETE extends REST{
     }
 
     public JsonArray removeUser(User user){
-        ResultSet resultSet = removeUser(UUID.fromString(user.getIdUser()), user.getEmail());
+        ResultSet resultSet = removeUser(UUID.fromString(user.getId()), user.getEmail());
         return JsonConverter.resultSetToJsonArray(resultSet);
     }
     public JsonArray removeAnswer(Answer answer){
-        ResultSet resultSet = removeAnswer(UUID.fromString(answer.getParentPostId()), UUID.fromString(answer.getIdPost()));
+        ResultSet resultSet = removeAnswer(UUID.fromString(answer.getIdParent()), UUID.fromString(answer.getId()));
         return JsonConverter.resultSetToJsonArray(resultSet);
     }
     public JsonArray removeQuestion(Question question){
 
         //Tags zur Frage holen
         GET GET = new GET(session, debug);
-        JsonArray tags = GET.getTagsFromQuestion(UUID.fromString(question.getIdPost()));
+        JsonArray tags = GET.getTagsFromQuestion(UUID.fromString(question.getId()));
 
-        ResultSet resultSet = removeQuestion(UUID.fromString(question.getIdPost()), tags, Timestamp.valueOf(question.getCreatedAt()));
+        ResultSet resultSet = removeQuestion(UUID.fromString(question.getId()), tags, LocalDateTime.parse(question.getCreatedAt()));
         return JsonConverter.resultSetToJsonArray(resultSet);
     }
     private ResultSet removeAnswer(UUID idQuestion, UUID idAnswer) {
@@ -79,13 +79,15 @@ public class DELETE extends REST{
         return resultSet;
     }
 
-    private ResultSet removeQuestion(UUID idQuestion, JsonArray tags, Timestamp createdAt) {
+    private ResultSet removeQuestion(UUID idQuestion, JsonArray tags, LocalDateTime createdAt) {
+
         timer.start();
+        Timestamp createdAtTimestamp = Timestamp.valueOf(createdAt);
 
         // Löschen der Frage in der Tabelle "question_by_tag"
         for(JsonElement tag : tags){
             PreparedStatement removeQuestionByTagStatement = session.prepare("DELETE FROM stackoverflow.questions_by_tag WHERE tagName = ? AND idQuestion = ? AND questionCreatedAt = ?");
-            BoundStatement removeQuestionByTagBoundStatement = removeQuestionByTagStatement.bind(tag.getAsString(), idQuestion, createdAt);
+            BoundStatement removeQuestionByTagBoundStatement = removeQuestionByTagStatement.bind(tag.getAsString(), idQuestion, createdAtTimestamp);
             session.execute(removeQuestionByTagBoundStatement);
         }
 
@@ -95,10 +97,10 @@ public class DELETE extends REST{
         session.execute(removeQuestionBoundStatement);
 
         // Löschen der Frage in der Tabelle "latest_questions"
-        String dateString = createdAt.toString().substring(0, 10).replace("-", "");
+        String dateString = createdAtTimestamp.toString().substring(0, 10).replace("-", "");
 
         PreparedStatement removeLatestQuestionStatement = session.prepare("DELETE FROM stackoverflow.latest_questions WHERE yymmdd = ? AND idQuestion = ? AND createdAt = ?");
-        BoundStatement removeLatestQuestionBoundStatement = removeLatestQuestionStatement.bind(dateString, idQuestion, createdAt);
+        BoundStatement removeLatestQuestionBoundStatement = removeLatestQuestionStatement.bind(dateString, idQuestion, createdAtTimestamp);
         session.execute(removeLatestQuestionBoundStatement);
 
 

@@ -1,50 +1,45 @@
 package de.fh.dortmund.model;
 
-import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
+import de.fh.dortmund.model.enums.PostType;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@NoArgsConstructor
 @Data
 public abstract class Post {
-    private String idPost = UUID.randomUUID().toString();
+    @SerializedName("Id")
+    private String id;
 
-    private String idUser;
+    @SerializedName("IdUser")
+    private String userId;
 
     @SerializedName("Content")
     private String content;
 
     @SerializedName("CreatedAt")
-    private LocalDateTime createdAt;
+    private String createdAt;
 
     @SerializedName("ModifiedAt")
-    private LocalDateTime modifiedAt;
+    private String modifiedAt;
 
-    @SerializedName("PType")
-    private PType type;
+    @SerializedName("PostType")
+    private PostType postType;
 
-    @SerializedName("ParentPostId")
-    private String parentPostId;
+    @SerializedName("IdParent")
+    private String idParent;
 
-    public Post(){}
-
-    public Post(PType type, String idUser, String content, String parentPostId){
-        this.type = type;
-        this.idUser = idUser;
+    public Post(String userId, String content, PostType postType, String idParent) {
+        this.id = String.valueOf(UUID.randomUUID());
+        this.userId = userId;
         this.content = content;
-        this.parentPostId = parentPostId;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now().toString();
+        this.modifiedAt = LocalDateTime.now().toString();
+        this.postType = postType;
+        this.idParent = idParent;
     }
 
-    public Post(JsonElement jsonElement) {
-        this.idPost = jsonElement.getAsJsonObject().get("idPost").getAsString();
-        this.idUser = jsonElement.getAsJsonObject().get("idUser").getAsString();
-        this.content = jsonElement.getAsJsonObject().get("Content").getAsString();
-        this.createdAt = LocalDateTime.parse(jsonElement.getAsJsonObject().get("CreatedAt").getAsString());
-        this.modifiedAt = LocalDateTime.parse(jsonElement.getAsJsonObject().get("ModifiedAt").getAsString());
-        this.type = PType.valueOf(jsonElement.getAsJsonObject().get("PType").getAsString());
-        this.parentPostId = jsonElement.getAsJsonObject().get("ParentPostId").getAsString();
-    }
 }

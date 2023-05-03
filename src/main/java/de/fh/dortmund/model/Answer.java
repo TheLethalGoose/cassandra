@@ -1,14 +1,13 @@
 package de.fh.dortmund.model;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import com.google.gson.annotations.SerializedName;
+import de.fh.dortmund.model.enums.PostType;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
-public class Answer extends Post{
+public class Answer extends Post {
+    @SerializedName("Accepted")
     private boolean accepted;
 
-    public Answer(String idQuestion, String idUser, String content){
-        super(PType.ANSWER, idUser, content, idQuestion);
+    public Answer(String userId, String parentId, String answerText) {
+        super(userId, answerText, PostType.ANSWER, parentId);
     }
 }
