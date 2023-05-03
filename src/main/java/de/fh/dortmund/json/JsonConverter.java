@@ -4,10 +4,7 @@ import com.datastax.driver.core.ColumnDefinitions;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 
 import java.util.Set;
 
@@ -22,19 +19,14 @@ public class JsonConverter {
         for (Row row : resultSet) {
             JsonObject obj = new JsonObject();
             for (ColumnDefinitions.Definition def : resultSet.getColumnDefinitions().asList()) {
-
-                if(row.getObject(def.getName()) instanceof Set) {
-                    Gson gson = new Gson();
-                    Set<String> set = row.getSet(def.getName(), String.class);
-                    obj.add(def.getName(),  gson.toJsonTree(set));
-                    continue;
-                }
-                obj.add(def.getName(), (JsonElement) row.getObject(def.getName()));
-
+                obj.add(def.getName(), new Gson().toJsonTree(row.getObject(def.getName())));
             }
             result.add(obj);
         }
         return result;
+    }
+    public static String jsonArrayToString(JsonArray jsonArray){
+        return new Gson().toJson(jsonArray);
     }
 
 }
