@@ -12,7 +12,7 @@ public class User {
 
     private String password;
 
-    private int reputation;
+    private String reputation;
 
     private String username;
 
@@ -20,5 +20,12 @@ public class User {
         this.email = email;
         this.password = password;
         this.username = username;
+    }
+
+    public User(String email, String password, String username, String reputation){
+        this.email = email;
+        this.password = password;
+        this.username = username;
+        this.reputation = reputation;
     }
 }
