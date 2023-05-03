@@ -35,7 +35,7 @@ public class DELETE extends REST{
         GET GET = new GET(session, debug);
         JsonArray tags = GET.getTagsFromQuestion(UUID.fromString(question.getId()));
 
-        ResultSet resultSet = removeQuestion(UUID.fromString(question.getId()), tags, LocalDateTime.parse(question.getCreatedAt()));
+        ResultSet resultSet = removeQuestion(UUID.fromString(question.getUserId()), UUID.fromString(question.getId()), tags, LocalDateTime.parse(question.getCreatedAt()));
         return JsonConverter.resultSetToJsonArray(resultSet);
     }
     private ResultSet removeAnswer(UUID idQuestion, UUID idAnswer) {
@@ -79,17 +79,22 @@ public class DELETE extends REST{
         return resultSet;
     }
 
-    private ResultSet removeQuestion(UUID idQuestion, JsonArray tags, LocalDateTime createdAt) {
+    private ResultSet removeQuestion(UUID idUser, UUID idQuestion, JsonArray tags, LocalDateTime createdAt) {
 
         timer.start();
         Timestamp createdAtTimestamp = Timestamp.valueOf(createdAt);
 
         // Löschen der Frage in der Tabelle "question_by_tag"
         for(JsonElement tag : tags){
-            PreparedStatement removeQuestionByTagStatement = session.prepare("DELETE FROM stackoverflow.questions_by_tag WHERE tagName = ? AND idQuestion = ? AND questionCreatedAt = ?");
+            PreparedStatement removeQuestionByTagStatement = session.prepare("DELETE FROM stackoverflow.questions_by_tag WHERE tagName = ? AND idQuestion = ? AND createdAt = ?");
             BoundStatement removeQuestionByTagBoundStatement = removeQuestionByTagStatement.bind(tag.getAsString(), idQuestion, createdAtTimestamp);
             session.execute(removeQuestionByTagBoundStatement);
         }
+
+        // Löschen der Frage in der Tabelle "question_by_user"
+        PreparedStatement removeQuestionByUserStatement = session.prepare("DELETE FROM stackoverflow.questions_by_user WHERE idUser = ? AND idQuestion = ? AND createdAt = ?");
+        BoundStatement removeQuestionByUserBoundStatement = removeQuestionByUserStatement.bind(idUser, idQuestion, createdAtTimestamp);
+        session.execute(removeQuestionByUserBoundStatement);
 
         // Löschen der Frage in der Tabelle "question"
         PreparedStatement removeQuestionStatement = session.prepare("DELETE FROM stackoverflow.questions WHERE idQuestion = ?");
