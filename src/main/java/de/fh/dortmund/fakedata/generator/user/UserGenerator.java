@@ -1,4 +1,4 @@
-package de.fh.dortmund.fakedata.user;
+package de.fh.dortmund.fakedata.generator.user;
 
 import com.datastax.driver.core.Session;
 import com.github.javafaker.Faker;
@@ -24,9 +24,11 @@ public class UserGenerator{
 			String username = faker.name().username();
 			String password = faker.internet().password();
 			String email = faker.internet().emailAddress();
-			int reputation = faker.number().numberBetween(-100, 10000);
-			User newUser = POST.createUser(username, password, email, reputation);
+			String reputation = String.valueOf(faker.number().numberBetween(0, 10000));
+
+			User newUser = new User(username, password, email, reputation);
 			users.add(newUser);
+			POST.createUser(newUser);
 		}
 		System.out.println("Created " + amount + " users in " + timer);
 		return users;
