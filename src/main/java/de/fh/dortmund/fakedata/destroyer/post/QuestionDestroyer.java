@@ -25,7 +25,7 @@ public class QuestionDestroyer {
         timer.start();
 
         for (int i = 0; i < amount; i++) {
-            int indexToRemove = random.nextInt(answers.size());
+            int indexToRemove = random.nextInt(questions.size());
             Question victim = questions.remove(indexToRemove);
             DELETE.removeQuestion(victim);
         }

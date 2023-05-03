@@ -2,12 +2,14 @@ package de.fh.dortmund.fakedata.generator.post;
 
 import com.datastax.driver.core.Session;
 import com.github.javafaker.Faker;
+import de.fh.dortmund.helper.LocalDateTimeGenerator;
 import de.fh.dortmund.helper.Timer;
 import de.fh.dortmund.model.Answer;
 import de.fh.dortmund.model.Question;
 import de.fh.dortmund.model.User;
 import de.fh.dortmund.service.POST;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +39,12 @@ public class AnswerGenerator {
             User user = users.get(randomUserIndex);
             Question question = questions.get(randomQuestionIndex);
             int votes = faker.number().numberBetween(-100, 1000);
+            boolean accepted = faker.bool().bool();
 
-            Answer newAnswer = new Answer(user.getId(), question.getId(), answerText);
+            LocalDateTime createdAt = LocalDateTimeGenerator.generateRandomLocalDateTimeAfter(LocalDateTime.parse(question.getCreatedAt()));
+            LocalDateTime modifiedAt = LocalDateTimeGenerator.generateRandomLocalDateTimeAfter(createdAt);
+
+            Answer newAnswer = new Answer(user.getId(), question.getId(), answerText, accepted, createdAt.toString(), modifiedAt.toString());
             answers.add(newAnswer);
 
             POST.createAnswer(newAnswer , question, votes);
