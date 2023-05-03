@@ -35,6 +35,7 @@ public abstract class Post {
         this.idUser = idUser;
         this.content = content;
         this.parentPostId = parentPostId;
+        this.createdAt = LocalDateTime.now();
     }
 
     public Post(JsonElement jsonElement) {
