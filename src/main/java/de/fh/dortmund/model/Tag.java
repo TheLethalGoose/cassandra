@@ -18,4 +18,17 @@ public class Tag {
         this.tagName = tagName;
         this.info = info;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Tag tag)) return false;
+
+        return getTagName().equals(tag.getTagName());
+    }
+
+    @Override
+    public int hashCode() {
+        return getTagName().hashCode();
+    }
 }
