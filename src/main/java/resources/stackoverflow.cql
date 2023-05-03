@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS stackoverflow.latest_questions
     PRIMARY KEY ((yymmdd), createdAt, idQuestion)
     ) WITH CLUSTERING ORDER BY (createdAt DESC, idQuestion ASC);
 
-CREATE TABLE IF NOT EXISTS stackoverflow.question
+CREATE TABLE IF NOT EXISTS stackoverflow.questions
 (
     idQuestion       uuid,
 
@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS stackoverflow.question
 
     votes            int,
     views            int,
+    answers          int,
 
     tags             set<text>,
     linkedQuestions  set<uuid>,
@@ -44,12 +45,12 @@ CREATE TABLE IF NOT EXISTS stackoverflow.questions_by_tag
     idQuestion         uuid,
     questionCreatedAt  timestamp,
 
-    idTag              uuid STATIC,
+    idTag              uuid,
     tagInfo            text,
     tagRelatedTags     set<text>,
     tagSynonyms        set<text>,
 
-    questionCreatedBy  uuid STATIC,
+    questionCreatedBy  uuid,
     questionTitle      text,
     questionViews      int,
     questionVotes      int,
@@ -61,17 +62,17 @@ CREATE TABLE IF NOT EXISTS stackoverflow.questions_by_tag
 
 CREATE TABLE IF NOT EXISTS stackoverflow.answers_by_question
 (
-    idParent  uuid,
+    idQuestion  uuid,
 
     idAnswer  uuid,
     createdAt timestamp,
     accepted  boolean,
 
-    creator   uuid STATIC,
+    creator   uuid,
     content   text,
     votes     int,
 
-    PRIMARY KEY ((idParent), idAnswer, createdAt, accepted)
+    PRIMARY KEY ((idQuestion), idAnswer, createdAt, accepted)
     ) WITH CLUSTERING ORDER BY (idAnswer ASC, createdAt DESC, accepted DESC);
 
 CREATE TABLE IF NOT EXISTS stackoverflow.user_by_email
