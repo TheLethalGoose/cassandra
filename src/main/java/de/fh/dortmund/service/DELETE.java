@@ -97,7 +97,7 @@ public class DELETE extends REST{
         session.execute(removeQuestionByUserBoundStatement);
 
         // Löschen der Frage in der Tabelle "question"
-        PreparedStatement removeQuestionStatement = session.prepare("DELETE FROM stackoverflow.questions WHERE idQuestion = ?");
+        PreparedStatement removeQuestionStatement = session.prepare("DELETE FROM stackoverflow.question WHERE idQuestion = ?");
         BoundStatement removeQuestionBoundStatement = removeQuestionStatement.bind(idQuestion);
         session.execute(removeQuestionBoundStatement);
 

@@ -99,7 +99,7 @@ public class POST extends REST {
 		Random random = new Random();
 
 		// Erstellen einer neuen Zeile in der Tabelle "questions"
-		PreparedStatement questionStatement = session.prepare("INSERT INTO questions (idQuestion, title, content, createdAt, modifiedAt, idUser, linkedQuestions, tags, views, votes, answers) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		PreparedStatement questionStatement = session.prepare("INSERT INTO question (idQuestion, title, content, createdAt, modifiedAt, idUser, linkedQuestions, tags, views, votes, answers) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		BoundStatement questionBoundStatement = questionStatement.bind(uuid, title, content, createdAtTimeStamp, modifiedAtTimeStamp, idUser, linkedQuestions, tagNameSet, views, votes, 0);
 		ResultSet resultSet = session.execute(questionBoundStatement);
 

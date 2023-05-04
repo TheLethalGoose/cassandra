@@ -28,9 +28,10 @@ public class GET extends REST {
     public JsonArray getTagsFromQuestion(UUID idQuestion){
         timer.start();
 
-        PreparedStatement getTagsFromQuestionStatement = session.prepare("SELECT tags FROM stackoverflow.questions WHERE idQuestion = ?");
+        PreparedStatement getTagsFromQuestionStatement = session.prepare("SELECT tags FROM stackoverflow.question WHERE idQuestion = ?");
         BoundStatement getTagsFromQuestionStatemenBoundStatement = getTagsFromQuestionStatement.bind(idQuestion);
         ResultSet resultSet = session.execute(getTagsFromQuestionStatemenBoundStatement);
+
 
         if(debug) {
             System.out.println("Query getTagsFromQuestion completed in: " + timer);
@@ -119,7 +120,7 @@ public class GET extends REST {
     public JsonArray getTotalVotesOnQuestion(UUID idQuestion){
         timer.start();
 
-        PreparedStatement getTotalVotesOnQuestionStatement = session.prepare("SELECT * FROM stackoverflow.questions WHERE idQuestion = ?");
+        PreparedStatement getTotalVotesOnQuestionStatement = session.prepare("SELECT * FROM stackoverflow.question WHERE idQuestion = ?");
         BoundStatement getTotalVotesOnQuestionBoundStatement = getTotalVotesOnQuestionStatement.bind(idQuestion);
         ResultSet resultSet = session.execute(getTotalVotesOnQuestionBoundStatement);
 
