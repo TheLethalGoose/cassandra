@@ -35,33 +35,22 @@ public class Main {
         CassandraConnector connector = new CassandraConnector();
         connector.connect(node, port, keyspace);
 
-
         System.out.println("Welcome to stackoverflow");
 
-        CassandraInitializer.init(connector.getSession());
-        CassandraInitializer.flushData(connector.getSession());
+        CassandraInitializer.init(connector.getSession(), true, true);
+
+        //Tombstone threshold zur Vorstellung in der Präsentation
+        //CassandraInitializer.setTombstoneThreshold(connector.getSession(),keyspace, 60);
 
         Set<Tag> tags = new HashSet<>();
 
-        List<User> userList = UserGenerator.generateUsers(connector.getSession(),60);
-        List<Question> questionList = QuestionGenerator.generateQuestions(connector.getSession(), 60, userList, tags);
-        List<Answer> answerList = AnswerGenerator.generateAnswers(connector.getSession(), 60, userList, questionList);
+        List<User> userList = UserGenerator.generateUsers(connector.getSession(),10);
+        List<Question> questionList = QuestionGenerator.generateQuestions(connector.getSession(), 10, userList, tags);
+        List<Answer> answerList = AnswerGenerator.generateAnswers(connector.getSession(), 10, userList, questionList);
 
-        UserDestroyer.destroyUsers(connector.getSession(), userList, 10);
-        AnswerDestroyer.destroyAnswers(connector.getSession(), answerList, 10);
-        QuestionDestroyer.destroyQuestions(connector.getSession(), questionList, answerList, 10);
-
-        GET GET = new GET(connector.getSession(), false);
-
-        String jsonString = JsonConverter.jsonArrayToString(GET.getQuestionsByTag(tags.iterator().next().getName()));
-
-        File file = new File(System.getProperty("user.home") + "/Desktop/questions_by_tag.json");
-        try (FileWriter writer = new FileWriter(file)) {
-            writer.write(jsonString);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+        UserDestroyer.destroyUsers(connector.getSession(), userList, 5);
+        AnswerDestroyer.destroyAnswers(connector.getSession(), answerList, 5);
+        QuestionDestroyer.destroyQuestions(connector.getSession(), questionList, answerList, 5);
 
         connector.close();
         System.out.println("Done");
