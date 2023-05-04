@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class LocalDateTimeGenerator {
 
-	static LocalDateTime beginTime = LocalDateTime.parse("2020-01-01T00:00:00");
+	static LocalDateTime beginTime = LocalDateTime.parse("2023-04-01T00:00:00");
 	static LocalDateTime endTime = LocalDateTime.parse("2023-04-29T23:59:59");
 
 	public static LocalDateTime generateRandomLocalDateTime(){
