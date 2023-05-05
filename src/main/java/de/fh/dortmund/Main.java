@@ -16,6 +16,7 @@ import de.fh.dortmund.model.Question;
 import de.fh.dortmund.model.Tag;
 import de.fh.dortmund.model.User;
 import de.fh.dortmund.service.GET;
+import de.fh.dortmund.service.PUT;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -37,7 +38,7 @@ public class Main {
 
         System.out.println("Welcome to stackoverflow");
 
-        CassandraInitializer.init(connector.getSession(), true, true);
+        CassandraInitializer.init(connector.getSession(), false, true);
 
         //Tombstone threshold zur Vorstellung in der Präsentation
         //CassandraInitializer.setTombstoneThreshold(connector.getSession(),keyspace, 60);
@@ -48,9 +49,14 @@ public class Main {
         List<Question> questionList = QuestionGenerator.generateQuestions(connector.getSession(), 10, userList, tags);
         List<Answer> answerList = AnswerGenerator.generateAnswers(connector.getSession(), 10, userList, questionList);
 
-        UserDestroyer.destroyUsers(connector.getSession(), userList, 5);
-        AnswerDestroyer.destroyAnswers(connector.getSession(), answerList, 5);
-        QuestionDestroyer.destroyQuestions(connector.getSession(), questionList, answerList, 5);
+        // UserDestroyer.destroyUsers(connector.getSession(), userList, 5);
+        // AnswerDestroyer.destroyAnswers(connector.getSession(), answerList, 5);
+        // QuestionDestroyer.destroyQuestions(connector.getSession(), questionList, answerList, 5);
+
+        PUT PUT = new PUT(connector.getSession(), true);
+
+        PUT.increaseValueToQuestion(questionList.get(0),"answers", 5);
+
 
         connector.close();
         System.out.println("Done");
