@@ -114,15 +114,14 @@ public class GET extends REST {
         return JsonConverter.resultSetToJsonArray(resultSet);
     }
 
-    public JsonArray getTotalVotesOnQuestion(Question question){
-        return getTotalVotesOnQuestion(UUID.fromString(question.getId()));
+    public JsonArray getValuesFromQuestion(Question question, String columnName){
+        return getValuesFromQuestion(UUID.fromString(question.getId()), columnName);
     }
-    public JsonArray getTotalVotesOnQuestion(UUID idQuestion){
+    public JsonArray getValuesFromQuestion(UUID idQuestion, String columnName){
         timer.start();
 
-        PreparedStatement getTotalVotesOnQuestionStatement = session.prepare("SELECT * FROM stackoverflow.question WHERE idQuestion = ?");
-        BoundStatement getTotalVotesOnQuestionBoundStatement = getTotalVotesOnQuestionStatement.bind(idQuestion);
-        ResultSet resultSet = session.execute(getTotalVotesOnQuestionBoundStatement);
+        String getTotalVotesOnQuestionQuery = "SELECT " + columnName +  " FROM stackoverflow.question WHERE idQuestion = " + idQuestion;
+        ResultSet resultSet = session.execute(getTotalVotesOnQuestionQuery);
 
         if(debug) {
             System.out.println("Query getTotalVotesOnQuestion completed in: " + timer);
