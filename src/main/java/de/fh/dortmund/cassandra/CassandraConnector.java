@@ -3,7 +3,7 @@ package de.fh.dortmund.cassandra;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 
-public class CassandraConnector {
+public class    CassandraConnector {
 
     private static Cluster cluster;
     private static Session session;
