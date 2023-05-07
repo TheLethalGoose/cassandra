@@ -27,12 +27,13 @@ public class PUT extends REST{
     }
 
     public JsonArray markAnswerAsAccepted(Answer answer){
-        //TODO
-        return null;
+        return markAnswerAsAccepted(UUID.fromString(answer.getId()), UUID.fromString(answer.getParentPostId()), LocalDateTime.parse(answer.getCreatedAt()));
     }
-    public JsonArray markAnswerAsAccepted(UUID idAnswer){
-        //TODO
-        return null;
+    public JsonArray markAnswerAsAccepted(UUID idAnswer, UUID idQuestion, LocalDateTime createdAt){
+        //TODO Fix this
+        PreparedStatement preparedStatement = session.prepare("UPDATE answers_by_question SET accepted = true WHERE idAnswer = ? AND idQuestion = ? AND createdAt = ? AND accepted = false;");
+        BoundStatement boundStatement = preparedStatement.bind(idAnswer, idQuestion, Timestamp.valueOf(createdAt));
+        return JsonConverter.resultSetToJsonArray(session.execute(boundStatement));
     }
 
     public JsonArray vote(Post post, Vote vote){
@@ -109,23 +110,23 @@ public class PUT extends REST{
         int answers = values.get(0).getAsJsonObject().get("answers").getAsInt();
         int views = values.get(0).getAsJsonObject().get("views").getAsInt();
 
-        ResultSet resultSet;
+        JsonArray jsonArray = null;
 
         if(columnName.equals("answers")){
-            POST.createQuestion(question, tagsSet, votes, views, answers + byValue);
+            jsonArray = POST.createQuestion(question, tagsSet, votes, views, answers + byValue);
         }
         if(columnName.equals("views")){
-            POST.createQuestion(question, tagsSet, votes, views + byValue, answers);
+            jsonArray = POST.createQuestion(question, tagsSet, votes, views + byValue, answers);
         }
         if(columnName.equals("votes")) {
-            POST.createQuestion(question, tagsSet, votes + byValue, views, answers);
+            jsonArray = POST.createQuestion(question, tagsSet, votes + byValue, views, answers);
         }
 
         if(debug){
             System.out.println("Using INSERT: Increased answers to question by " + byValue + " in " + timer);
         }
 
-        return null;
+        return jsonArray;
 
     }
 
