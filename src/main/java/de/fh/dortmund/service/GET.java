@@ -7,11 +7,13 @@ import com.datastax.driver.core.Session;
 import com.google.gson.JsonArray;
 import de.fh.dortmund.helper.Timer;
 import de.fh.dortmund.json.JsonConverter;
-import de.fh.dortmund.model.Question;
-import de.fh.dortmund.model.Tag;
-import de.fh.dortmund.model.User;
+import de.fh.dortmund.models.Post;
+import de.fh.dortmund.models.Question;
+import de.fh.dortmund.models.Tag;
+import de.fh.dortmund.models.User;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 public class GET extends REST {
@@ -114,13 +116,13 @@ public class GET extends REST {
         return JsonConverter.resultSetToJsonArray(resultSet);
     }
 
-    public JsonArray getValuesFromQuestion(Question question, String columnName){
-        return getValuesFromQuestion(UUID.fromString(question.getId()), columnName);
+    public JsonArray getValuesFromPost(Post post, Set<String> columnNames){
+        return getValuesFromPost(UUID.fromString(post.getId()), columnNames);
     }
-    public JsonArray getValuesFromQuestion(UUID idQuestion, String columnName){
+    public JsonArray getValuesFromPost(UUID idPost, Set<String> columnNames){
         timer.start();
 
-        String getTotalVotesOnQuestionQuery = "SELECT " + columnName +  " FROM stackoverflow.question WHERE idQuestion = " + idQuestion;
+        String getTotalVotesOnQuestionQuery = "SELECT " + String.join(", ", columnNames) +  " FROM stackoverflow.question WHERE idQuestion = " + idPost;
         ResultSet resultSet = session.execute(getTotalVotesOnQuestionQuery);
 
         if(debug) {

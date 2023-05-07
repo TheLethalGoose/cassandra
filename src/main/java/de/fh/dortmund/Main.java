@@ -1,26 +1,16 @@
 package de.fh.dortmund;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.google.gson.JsonArray;
 import de.fh.dortmund.cassandra.CassandraConnector;
 import de.fh.dortmund.cassandra.CassandraInitializer;
-import de.fh.dortmund.fakedata.destroyer.post.AnswerDestroyer;
-import de.fh.dortmund.fakedata.destroyer.post.QuestionDestroyer;
-import de.fh.dortmund.fakedata.destroyer.user.UserDestroyer;
 import de.fh.dortmund.fakedata.generator.post.AnswerGenerator;
 import de.fh.dortmund.fakedata.generator.post.QuestionGenerator;
 import de.fh.dortmund.fakedata.generator.user.UserGenerator;
-import de.fh.dortmund.json.JsonConverter;
-import de.fh.dortmund.model.Answer;
-import de.fh.dortmund.model.Question;
-import de.fh.dortmund.model.Tag;
-import de.fh.dortmund.model.User;
-import de.fh.dortmund.service.GET;
+import de.fh.dortmund.models.Answer;
+import de.fh.dortmund.models.Question;
+import de.fh.dortmund.models.Tag;
+import de.fh.dortmund.models.User;
 import de.fh.dortmund.service.PUT;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -55,7 +45,8 @@ public class Main {
 
         PUT PUT = new PUT(connector.getSession(), true);
 
-        PUT.increaseValueToQuestion(questionList.get(0),"answers", 5);
+        PUT.increaseValueToPostINSERT(questionList.get(0),"votes", 5);
+        PUT.increaseValueToPostUPDATE(questionList.get(0),"votes", 5);
 
 
         connector.close();

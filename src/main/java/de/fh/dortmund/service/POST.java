@@ -4,10 +4,10 @@ import com.datastax.driver.core.*;
 import com.github.javafaker.Faker;
 import com.google.gson.JsonArray;
 import de.fh.dortmund.json.JsonConverter;
-import de.fh.dortmund.model.Answer;
-import de.fh.dortmund.model.Question;
-import de.fh.dortmund.model.Tag;
-import de.fh.dortmund.model.User;
+import de.fh.dortmund.models.Answer;
+import de.fh.dortmund.models.Question;
+import de.fh.dortmund.models.Tag;
+import de.fh.dortmund.models.User;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -36,6 +36,12 @@ public class POST extends REST {
 
 		return JsonConverter.resultSetToJsonArray(resultSet);
 	}
+	public JsonArray createAnswer(Answer answer, UUID idQuestion, int votes){
+
+		ResultSet resultSet = createAnswer(UUID.fromString(answer.getId()), idQuestion, UUID.fromString(answer.getId()), LocalDateTime.parse(answer.getCreatedAt()), LocalDateTime.parse(answer.getModifiedAt()), answer.isAccepted(), answer.getContent(), votes);
+
+		return JsonConverter.resultSetToJsonArray(resultSet);
+	}
 	public JsonArray createAnswer(Answer answer, Question question, int votes){
 
 		ResultSet resultSet = createAnswer(UUID.fromString(answer.getId()), UUID.fromString(question.getId()), UUID.fromString(answer.getId()), LocalDateTime.parse(answer.getCreatedAt()), LocalDateTime.parse(answer.getModifiedAt()), answer.isAccepted(), answer.getContent(), votes);
@@ -45,19 +51,19 @@ public class POST extends REST {
 
 	public JsonArray createQuestion(Question question, Set<Tag> tags){
 
-		ResultSet resultSet = createQuestion(UUID.fromString(question.getId()), question.getTitle(), question.getContent(), UUID.fromString(question.getUserId()), LocalDateTime.parse(question.getCreatedAt()), LocalDateTime.parse(question.getModifiedAt()), tags, null,  0, 0);
+		ResultSet resultSet = createQuestion(UUID.fromString(question.getId()), question.getTitle(), question.getContent(), UUID.fromString(question.getUserId()), LocalDateTime.parse(question.getCreatedAt()), LocalDateTime.parse(question.getModifiedAt()), tags, null,  0, 0, 0);
 
 		return JsonConverter.resultSetToJsonArray(resultSet);
 	}
 	public JsonArray createQuestion(Question question, Set<Tag> tags, Set<String> linkedQuestions) {
 
-		ResultSet resultSet = createQuestion(UUID.fromString(question.getId()), question.getTitle(), question.getContent(), UUID.fromString(question.getUserId()), LocalDateTime.parse(question.getCreatedAt()), LocalDateTime.parse(question.getModifiedAt()), tags, linkedQuestions,  0, 0);
+		ResultSet resultSet = createQuestion(UUID.fromString(question.getId()), question.getTitle(), question.getContent(), UUID.fromString(question.getUserId()), LocalDateTime.parse(question.getCreatedAt()), LocalDateTime.parse(question.getModifiedAt()), tags, linkedQuestions,  0, 0, 0);
 
 		return JsonConverter.resultSetToJsonArray(resultSet);
 	}
-	public JsonArray createQuestion(Question question, Set<Tag> tags, int votes, int views) {
+	public JsonArray createQuestion(Question question, Set<Tag> tags, int votes, int views, int answers) {
 
-		ResultSet resultSet = createQuestion(UUID.fromString(question.getId()), question.getTitle(), question.getContent(), UUID.fromString(question.getUserId()), LocalDateTime.parse(question.getCreatedAt()), LocalDateTime.parse(question.getModifiedAt()), tags, null, views, votes);
+		ResultSet resultSet = createQuestion(UUID.fromString(question.getId()), question.getTitle(), question.getContent(), UUID.fromString(question.getUserId()), LocalDateTime.parse(question.getCreatedAt()), LocalDateTime.parse(question.getModifiedAt()), tags, null, views, votes, answers);
 
 		return JsonConverter.resultSetToJsonArray(resultSet);
 	}
@@ -86,7 +92,7 @@ public class POST extends REST {
 
 	}
 
-	private ResultSet createQuestion(UUID uuid, String title, String content, UUID idUser, LocalDateTime createdAt, LocalDateTime modifiedAt, Set<Tag> tags, Set<String> linkedQuestions, int views, int votes) {
+	private ResultSet createQuestion(UUID uuid, String title, String content, UUID idUser, LocalDateTime createdAt, LocalDateTime modifiedAt, Set<Tag> tags, Set<String> linkedQuestions, int views, int votes, int answers) {
 		timer.start();
 
 		Timestamp createdAtTimeStamp = Timestamp.valueOf(createdAt);
@@ -100,18 +106,18 @@ public class POST extends REST {
 
 		// Erstellen einer neuen Zeile in der Tabelle "questions"
 		PreparedStatement questionStatement = session.prepare("INSERT INTO question (idQuestion, title, content, createdAt, modifiedAt, idUser, linkedQuestions, tags, views, votes, answers) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-		BoundStatement questionBoundStatement = questionStatement.bind(uuid, title, content, createdAtTimeStamp, modifiedAtTimeStamp, idUser, linkedQuestions, tagNameSet, views, votes, 0);
+		BoundStatement questionBoundStatement = questionStatement.bind(uuid, title, content, createdAtTimeStamp, modifiedAtTimeStamp, idUser, linkedQuestions, tagNameSet, views, votes, answers);
 		ResultSet resultSet = session.execute(questionBoundStatement);
 
 		// Erstellen einer neuen Zeile in der Tabelle "latest_questions"
 		PreparedStatement latestQuestionsStatement = session.prepare("INSERT INTO latest_questions (yymmdd, createdAt, modifiedAt, idQuestion, answers, idUser, isAnswered, tags, title, views, votes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-		BoundStatement latestQuestionsBoundStatement = latestQuestionsStatement.bind(dateString, createdAtTimeStamp, modifiedAtTimeStamp, uuid, 0, idUser, false, tagNameSet, title, views, votes);
+		BoundStatement latestQuestionsBoundStatement = latestQuestionsStatement.bind(dateString, createdAtTimeStamp, modifiedAtTimeStamp, uuid, answers, idUser, false, tagNameSet, title, views, votes);
 		session.execute(latestQuestionsBoundStatement);
 
 		// Erstellen einer neuen Zeile in der Tabelle "questions_by_user"
 
 		PreparedStatement questionsByUserStatement = session.prepare("INSERT INTO questions_by_user (idUser, createdAt, modifiedAt, idQuestion, answers, isAnswered, tags, title, views, votes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-		BoundStatement questionsByUserBoundStatement = questionsByUserStatement.bind(idUser, createdAtTimeStamp, modifiedAtTimeStamp, uuid, 0, false, tagNameSet, title, views, votes);
+		BoundStatement questionsByUserBoundStatement = questionsByUserStatement.bind(idUser, createdAtTimeStamp, modifiedAtTimeStamp, uuid, answers, false, tagNameSet, title, views, votes);
 		session.execute(questionsByUserBoundStatement);
 
 		// Erstellen einer neuen Zeile in der Tabelle "question_by_tag"
@@ -130,7 +136,7 @@ public class POST extends REST {
 				Set<String> tagRelatedTags = new HashSet<>(faker.lorem().words(random.nextInt(5)+1));
 				Set<String> tagSynonyms = new HashSet<>(faker.lorem().words(random.nextInt(5)+1));
 
-				BoundStatement questionByTagBoundStatement = questionByTagStatement.bind(tag.getName(), createdAtTimeStamp, modifiedAtTimeStamp, uuid, UUID.randomUUID(), 0, idUser, false, title, tagNameSet, views, votes, tag.getInfo(), tagRelatedTags, tagSynonyms);
+				BoundStatement questionByTagBoundStatement = questionByTagStatement.bind(tag.getName(), createdAtTimeStamp, modifiedAtTimeStamp, uuid, UUID.randomUUID(), answers, idUser, false, title, tagNameSet, views, votes, tag.getInfo(), tagRelatedTags, tagSynonyms);
 				session.execute(questionByTagBoundStatement);
 				continue;
 			}
@@ -142,7 +148,7 @@ public class POST extends REST {
 			Set<String> tagRelatedTags = findInfosToTagNameRowOne.getSet("tagRelatedTags", String.class);
 			Set<String> tagSynonyms = findInfosToTagNameRowOne.getSet("tagSynonyms", String.class);
 
-			BoundStatement questionByTagBoundStatement = questionByTagStatement.bind(tag.getName(), createdAtTimeStamp, modifiedAtTimeStamp,  uuid, idTag, 0, idUser, false, title, tagNameSet, views, votes, tagInfo, tagRelatedTags, tagSynonyms);
+			BoundStatement questionByTagBoundStatement = questionByTagStatement.bind(tag.getName(), createdAtTimeStamp, modifiedAtTimeStamp,  uuid, idTag, answers, idUser, false, title, tagNameSet, views, votes, tagInfo, tagRelatedTags, tagSynonyms);
 			session.execute(questionByTagBoundStatement);
 
 		}

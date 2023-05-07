@@ -7,9 +7,9 @@ import com.datastax.driver.core.Session;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import de.fh.dortmund.json.JsonConverter;
-import de.fh.dortmund.model.Answer;
-import de.fh.dortmund.model.Question;
-import de.fh.dortmund.model.User;
+import de.fh.dortmund.models.Answer;
+import de.fh.dortmund.models.Question;
+import de.fh.dortmund.models.User;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
