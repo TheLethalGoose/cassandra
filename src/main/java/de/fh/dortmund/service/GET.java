@@ -24,13 +24,20 @@ public class GET extends REST {
         super(session, debug);
     }
 
+    PreparedStatement getTagsFromQuestionStatement = session.prepare("SELECT tags FROM stackoverflow.question WHERE idQuestion = ?");
+    PreparedStatement getQuestionsByTagStatement = session.prepare("SELECT * FROM stackoverflow.questions_by_tag WHERE tagName = ?");
+    PreparedStatement getQuestionsByUserStatement = session.prepare("SELECT * FROM stackoverflow.questions_by_user WHERE idUser = ?");
+    PreparedStatement getAnswersByQuestionStatement = session.prepare("SELECT * FROM stackoverflow.answers_by_question WHERE idQuestion = ?");
+    PreparedStatement getQuestionByDateStatement = session.prepare("SELECT * FROM stackoverflow.latest_questions WHERE yymmdd = ?");
+    PreparedStatement getUserByEmailStatement = session.prepare("SELECT * FROM stackoverflow.user_by_email WHERE email = ?");
+    PreparedStatement findUserStatement = session.prepare("SELECT * FROM stackoverflow.user WHERE idUser = ?");
+
     public JsonArray getTagsFromQuestion(Question question){
         return getTagsFromQuestion(UUID.fromString(question.getId()));
     }
     public JsonArray getTagsFromQuestion(UUID idQuestion){
         timer.start();
 
-        PreparedStatement getTagsFromQuestionStatement = session.prepare("SELECT tags FROM stackoverflow.question WHERE idQuestion = ?");
         BoundStatement getTagsFromQuestionStatemenBoundStatement = getTagsFromQuestionStatement.bind(idQuestion);
         ResultSet resultSet = session.execute(getTagsFromQuestionStatemenBoundStatement);
 
@@ -49,7 +56,6 @@ public class GET extends REST {
     public JsonArray getQuestionsByTag(String tagName){
         timer.start();
 
-        PreparedStatement getQuestionsByTagStatement = session.prepare("SELECT * FROM stackoverflow.questions_by_tag WHERE tagName = ?");
         BoundStatement getQuestionsByTagBoundStatement = getQuestionsByTagStatement.bind(tagName);
         ResultSet resultSet = session.execute(getQuestionsByTagBoundStatement);
 
@@ -65,7 +71,6 @@ public class GET extends REST {
     public JsonArray getQuestionsByUser(UUID uuid){
         timer.start();
 
-        PreparedStatement getQuestionsByUserStatement = session.prepare("SELECT * FROM stackoverflow.questions_by_user WHERE idUser = ?");
         BoundStatement getQuestionsByUserBoundStatement = getQuestionsByUserStatement.bind(uuid);
         ResultSet resultSet = session.execute(getQuestionsByUserBoundStatement);
 
@@ -83,7 +88,6 @@ public class GET extends REST {
     public JsonArray getAnswersByQuestion(UUID idQuestion){
         timer.start();
 
-        PreparedStatement getAnswersByQuestionStatement = session.prepare("SELECT * FROM stackoverflow.answers_by_question WHERE idQuestion = ?");
         BoundStatement getAnswersByQuestionBoundStatement = getAnswersByQuestionStatement.bind(idQuestion);
         ResultSet resultSet = session.execute(getAnswersByQuestionBoundStatement);
 
@@ -105,7 +109,6 @@ public class GET extends REST {
 
         String dateString = date.toString().substring(0, 10).replace("-", "");
 
-        PreparedStatement getQuestionByDateStatement = session.prepare("SELECT * FROM stackoverflow.latest_questions WHERE date = ?");
         BoundStatement getQuestionByDateBoundStatement = getQuestionByDateStatement.bind(dateString);
         ResultSet resultSet = session.execute(getQuestionByDateBoundStatement);
 
@@ -135,7 +138,6 @@ public class GET extends REST {
     public JsonArray getUserByEmail(String email){
         timer.start();
 
-        PreparedStatement getUserByEmailStatement = session.prepare("SELECT * FROM stackoverflow.user_by_email WHERE email = ?");
         BoundStatement getUserByEmailBoundStatement = getUserByEmailStatement.bind(email);
         ResultSet resultSet = session.execute(getUserByEmailBoundStatement);
 
@@ -151,7 +153,6 @@ public class GET extends REST {
     public JsonArray findUser(UUID uuid){
         timer.start();
 
-        PreparedStatement findUserStatement = session.prepare("SELECT * FROM stackoverflow.user WHERE idUser = ?");
         BoundStatement findUserBoundStatement = findUserStatement.bind(uuid);
         ResultSet resultSet = session.execute(findUserBoundStatement);
 

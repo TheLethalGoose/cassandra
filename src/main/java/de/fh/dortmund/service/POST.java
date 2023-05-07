@@ -11,7 +11,6 @@ import de.fh.dortmund.models.User;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -23,6 +22,14 @@ public class POST extends REST {
 	public POST(Session session, boolean debug) {
 		super(session, debug);
 	}
+
+	PreparedStatement questionStatement = session.prepare("INSERT INTO question (idQuestion, title, content, createdAt, modifiedAt, idUser, linkedQuestions, tags, views, votes, answers) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+	PreparedStatement latestQuestionsStatement = session.prepare("INSERT INTO latest_questions (yymmdd, createdAt, modifiedAt, idQuestion, answers, idUser, isAnswered, tags, title, views, votes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+	PreparedStatement answersByQuestionStatement = session.prepare("INSERT INTO answers_by_question (idQuestion, idAnswer, createdAt, modifiedAt, accepted, content, idUser, votes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+	PreparedStatement questionByTagStatement = session.prepare("INSERT INTO questions_by_tag (tagName, createdAt, modifiedAt, idQuestion, idTag, answers, idUser, isAnswered, title, tags, views, votes, tagInfo, tagRelatedTags, tagSynonyms) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+	PreparedStatement questionsByUserStatement = session.prepare("INSERT INTO questions_by_user (idUser, createdAt, modifiedAt, idQuestion, answers, isAnswered, tags, title, views, votes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+	PreparedStatement emailStatement = session.prepare("INSERT INTO user_by_email (email, password, idUser) VALUES (?, ?, ?)");
+	PreparedStatement userStatement = session.prepare("INSERT INTO user (idUser, username, email, reputation) VALUES (?, ?, ?, ?)");
 
 	public JsonArray createUser(User user){
 
@@ -73,14 +80,11 @@ public class POST extends REST {
 		timer.start();
 
 		// Erstellen einer neuen Zeile in der Tabelle "user"
-		PreparedStatement userStatement = session.prepare("INSERT INTO user (idUser, username, email, reputation) VALUES (?, ?, ?, ?)");
 		BoundStatement userBoundStatement = userStatement.bind(uuid, username, email, reputation);
 		session.execute(userBoundStatement);
 
 		// Erstellen einer neuen Zeile in der Tabelle "user_by_email"
-		PreparedStatement emailStatement = session.prepare("INSERT INTO user_by_email (email, password, idUser) VALUES (?, ?, ?)");
 		BoundStatement emailBoundStatement = emailStatement.bind(email, password, uuid);
-
 		ResultSet resultSet = session.execute(emailBoundStatement);
 
 		timer.stop();
@@ -116,18 +120,15 @@ public class POST extends REST {
 		Random random = new Random();
 
 		// Erstellen einer neuen Zeile in der Tabelle "questions"
-		PreparedStatement questionStatement = session.prepare("INSERT INTO question (idQuestion, title, content, createdAt, modifiedAt, idUser, linkedQuestions, tags, views, votes, answers) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		BoundStatement questionBoundStatement = questionStatement.bind(uuid, title, content, createdAtTimeStamp, modifiedAtTimeStamp, idUser, linkedQuestions, tagNameSet, views, votes, answers);
 		ResultSet resultSet = session.execute(questionBoundStatement);
 
 		// Erstellen einer neuen Zeile in der Tabelle "latest_questions"
-		PreparedStatement latestQuestionsStatement = session.prepare("INSERT INTO latest_questions (yymmdd, createdAt, modifiedAt, idQuestion, answers, idUser, isAnswered, tags, title, views, votes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		BoundStatement latestQuestionsBoundStatement = latestQuestionsStatement.bind(dateString, createdAtTimeStamp, modifiedAtTimeStamp, uuid, answers, idUser, false, tagNameSet, title, views, votes);
 		session.execute(latestQuestionsBoundStatement);
 
 		// Erstellen einer neuen Zeile in der Tabelle "questions_by_user"
 
-		PreparedStatement questionsByUserStatement = session.prepare("INSERT INTO questions_by_user (idUser, createdAt, modifiedAt, idQuestion, answers, isAnswered, tags, title, views, votes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		BoundStatement questionsByUserBoundStatement = questionsByUserStatement.bind(idUser, createdAtTimeStamp, modifiedAtTimeStamp, uuid, answers, false, tagNameSet, title, views, votes);
 		session.execute(questionsByUserBoundStatement);
 
@@ -136,9 +137,6 @@ public class POST extends REST {
 
 			String findIdToTagNameQuery = "SELECT idTag, tagInfo, tagRelatedTags, tagSynonyms FROM stackoverflow.questions_by_tag WHERE tagName = '" + tag.getName() + "'";
 			ResultSet findInfosToTagNameResult = session.execute(findIdToTagNameQuery);
-
-			PreparedStatement questionByTagStatement = session.prepare("INSERT INTO questions_by_tag (tagName, createdAt, modifiedAt, idQuestion, idTag, answers, idUser, isAnswered, title, tags, views, votes, tagInfo, tagRelatedTags, tagSynonyms) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
 
 			//Tag noch nicht im System
 			if(findInfosToTagNameResult.isExhausted()){
@@ -188,8 +186,7 @@ public class POST extends REST {
 		Timestamp createdAtTimestamp = Timestamp.valueOf(createdAt);
 		Timestamp modifiedAtTimestamp = Timestamp.valueOf(modifiedAt);
 
-		PreparedStatement userStatement = session.prepare("INSERT INTO answers_by_question (idQuestion, idAnswer, createdAt, modifiedAt, accepted, content, idUser, votes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-		BoundStatement userBoundStatement = userStatement.bind(idQuestion, idAnswer, createdAtTimestamp, modifiedAtTimestamp, accepted, answerText, user, votes);
+		BoundStatement userBoundStatement = answersByQuestionStatement.bind(idQuestion, idAnswer, createdAtTimestamp, modifiedAtTimestamp, accepted, answerText, user, votes);
 		ResultSet resultSet	= session.execute(userBoundStatement);
 
 		timer.stop();

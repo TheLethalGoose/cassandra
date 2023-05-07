@@ -21,6 +21,14 @@ public class DELETE extends REST{
         super(session, debug);
     }
 
+    PreparedStatement removeLatestQuestionStatement = session.prepare("DELETE FROM stackoverflow.latest_questions WHERE yymmdd = ? AND idQuestion = ? AND createdAt = ?");
+    PreparedStatement removeQuestionStatement = session.prepare("DELETE FROM stackoverflow.question WHERE idQuestion = ?");
+    PreparedStatement removeAnswerStatement = session.prepare("DELETE FROM stackoverflow.answers_by_question WHERE idQuestion = ? AND idAnswer = ?");
+    PreparedStatement removeUserStatement = session.prepare("DELETE FROM stackoverflow.user WHERE idUser = ?");
+    PreparedStatement removeEmailStatement = session.prepare("DELETE FROM stackoverflow.user_by_email WHERE email = ?");
+    PreparedStatement removeQuestionByUserStatement = session.prepare("DELETE FROM stackoverflow.questions_by_user WHERE idUser = ? AND idQuestion = ? AND createdAt = ?");
+    PreparedStatement removeQuestionByTagStatement = session.prepare("DELETE FROM stackoverflow.questions_by_tag WHERE tagName = ? AND idQuestion = ? AND createdAt = ?");
+
     public JsonArray removeUser(User user){
         ResultSet resultSet = removeUser(UUID.fromString(user.getId()), user.getEmail());
         return JsonConverter.resultSetToJsonArray(resultSet);
@@ -42,7 +50,6 @@ public class DELETE extends REST{
         timer.start();
 
         // Löschen der Antwort in der Tabelle "answers_by_question"
-        PreparedStatement removeAnswerStatement = session.prepare("DELETE FROM stackoverflow.answers_by_question WHERE idQuestion = ? AND idAnswer = ?");
         BoundStatement removeAnswerBoundStatement = removeAnswerStatement.bind(idQuestion, idAnswer);
         session.execute(removeAnswerBoundStatement);
 
@@ -60,12 +67,10 @@ public class DELETE extends REST{
         timer.start();
 
         // Löschen des Nutzers in der Tabelle "user"
-        PreparedStatement removeUserStatement = session.prepare("DELETE FROM stackoverflow.user WHERE idUser = ?");
         BoundStatement removeUserBoundStatement = removeUserStatement.bind(uuid);
         session.execute(removeUserBoundStatement);
 
         // Löschen des Nutzers in der Tabelle "user_by_email"
-        PreparedStatement removeEmailStatement = session.prepare("DELETE FROM stackoverflow.user_by_email WHERE email = ?");
         BoundStatement removeEmailBoundStatement = removeEmailStatement.bind(email);
 
         ResultSet resultSet = session.execute(removeEmailBoundStatement);
@@ -86,28 +91,23 @@ public class DELETE extends REST{
 
         // Löschen der Frage in der Tabelle "question_by_tag"
         for(JsonElement tag : tags){
-            PreparedStatement removeQuestionByTagStatement = session.prepare("DELETE FROM stackoverflow.questions_by_tag WHERE tagName = ? AND idQuestion = ? AND createdAt = ?");
             BoundStatement removeQuestionByTagBoundStatement = removeQuestionByTagStatement.bind(tag.getAsString(), idQuestion, createdAtTimestamp);
             session.execute(removeQuestionByTagBoundStatement);
         }
 
         // Löschen der Frage in der Tabelle "question_by_user"
-        PreparedStatement removeQuestionByUserStatement = session.prepare("DELETE FROM stackoverflow.questions_by_user WHERE idUser = ? AND idQuestion = ? AND createdAt = ?");
         BoundStatement removeQuestionByUserBoundStatement = removeQuestionByUserStatement.bind(idUser, idQuestion, createdAtTimestamp);
         session.execute(removeQuestionByUserBoundStatement);
 
         // Löschen der Frage in der Tabelle "question"
-        PreparedStatement removeQuestionStatement = session.prepare("DELETE FROM stackoverflow.question WHERE idQuestion = ?");
         BoundStatement removeQuestionBoundStatement = removeQuestionStatement.bind(idQuestion);
         session.execute(removeQuestionBoundStatement);
 
         // Löschen der Frage in der Tabelle "latest_questions"
         String dateString = createdAtTimestamp.toString().substring(0, 10).replace("-", "");
 
-        PreparedStatement removeLatestQuestionStatement = session.prepare("DELETE FROM stackoverflow.latest_questions WHERE yymmdd = ? AND idQuestion = ? AND createdAt = ?");
         BoundStatement removeLatestQuestionBoundStatement = removeLatestQuestionStatement.bind(dateString, idQuestion, createdAtTimestamp);
         session.execute(removeLatestQuestionBoundStatement);
-
 
         ResultSet resultSet = session.execute(removeQuestionBoundStatement);
         timer.stop();
