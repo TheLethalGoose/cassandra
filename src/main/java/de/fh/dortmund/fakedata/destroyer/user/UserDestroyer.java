@@ -2,7 +2,7 @@ package de.fh.dortmund.fakedata.destroyer.user;
 
 import com.datastax.driver.core.Session;
 import de.fh.dortmund.helper.Timer;
-import de.fh.dortmund.model.User;
+import de.fh.dortmund.models.User;
 import de.fh.dortmund.service.DELETE;
 
 import java.util.List;

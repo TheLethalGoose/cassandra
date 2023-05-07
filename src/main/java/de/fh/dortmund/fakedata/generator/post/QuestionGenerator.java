@@ -4,9 +4,9 @@ import com.datastax.driver.core.Session;
 import com.github.javafaker.Faker;
 import de.fh.dortmund.helper.LocalDateTimeGenerator;
 import de.fh.dortmund.helper.Timer;
-import de.fh.dortmund.model.Question;
-import de.fh.dortmund.model.Tag;
-import de.fh.dortmund.model.User;
+import de.fh.dortmund.models.Question;
+import de.fh.dortmund.models.Tag;
+import de.fh.dortmund.models.User;
 import de.fh.dortmund.service.POST;
 
 import java.time.LocalDateTime;
@@ -57,7 +57,7 @@ public class QuestionGenerator {
 
 			Question newQuestion = new Question(userId, title, body, createdAt.toString(), modifiedAt.toString());
 			questions.add(newQuestion);
-			POST.createQuestion(newQuestion, tagsToQuestion, views, votes);
+			POST.createQuestion(newQuestion, tagsToQuestion, views, votes,0);
 
 		}
 		System.out.println("Created " + amount + " questions in " + timer);

@@ -3,7 +3,7 @@ package de.fh.dortmund.fakedata.generator.user;
 import com.datastax.driver.core.Session;
 import com.github.javafaker.Faker;
 import de.fh.dortmund.helper.Timer;
-import de.fh.dortmund.model.User;
+import de.fh.dortmund.models.User;
 import de.fh.dortmund.service.POST;
 
 import java.util.ArrayList;

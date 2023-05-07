@@ -1,7 +1,8 @@
-package de.fh.dortmund.model;
+package de.fh.dortmund.models;
 
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
-import de.fh.dortmund.model.enums.PostType;
+import de.fh.dortmund.models.enums.PostType;
 import lombok.Data;
 
 
@@ -17,6 +18,10 @@ public class Question extends Post {
     public Question(String userId, String title, String content) {
         super(userId, content, PostType.QUESTION, null);
         this.title = title;
+    }
+    public Question(JsonObject jsonObject) {
+        super(jsonObject.get("idUser").getAsString(), jsonObject.get("content").getAsString(), PostType.QUESTION, null);
+        this.title = jsonObject.get("title").getAsString();
     }
     public Question(String userId, String title, String content, String createdAt, String modifiedAt) {
         super(userId, content, PostType.QUESTION, null, createdAt, modifiedAt);

@@ -1,4 +1,4 @@
-package de.fh.dortmund.model;
+package de.fh.dortmund.models;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;

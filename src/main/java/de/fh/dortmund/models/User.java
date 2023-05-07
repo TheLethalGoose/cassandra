@@ -1,5 +1,6 @@
-package de.fh.dortmund.model;
+package de.fh.dortmund.models;
 
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 
@@ -35,5 +36,11 @@ public class User {
         this.password = password;
         this.username = username;
         this.reputation = reputation;
+    }
+    public User(JsonObject jsonObject) {
+        this.email = jsonObject.get("email").getAsString();
+        this.password = jsonObject.get("password").getAsString();
+        this.username = jsonObject.get("username").getAsString();
+        this.reputation = jsonObject.get("reputation").getAsInt();
     }
 }

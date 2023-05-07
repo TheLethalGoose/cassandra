@@ -1,4 +1,4 @@
-package de.fh.dortmund.model.enums;
+package de.fh.dortmund.models.enums;
 
 public enum PostType {
     QUESTION,

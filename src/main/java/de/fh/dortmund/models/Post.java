@@ -1,7 +1,7 @@
-package de.fh.dortmund.model;
+package de.fh.dortmund.models;
 
 import com.google.gson.annotations.SerializedName;
-import de.fh.dortmund.model.enums.PostType;
+import de.fh.dortmund.models.enums.PostType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -52,5 +52,4 @@ public abstract class Post {
         this.postType = postType;
         this.idParent = idParent;
     }
-
 }

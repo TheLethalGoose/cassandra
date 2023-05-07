@@ -4,9 +4,9 @@ import com.datastax.driver.core.Session;
 import com.github.javafaker.Faker;
 import de.fh.dortmund.helper.LocalDateTimeGenerator;
 import de.fh.dortmund.helper.Timer;
-import de.fh.dortmund.model.Answer;
-import de.fh.dortmund.model.Question;
-import de.fh.dortmund.model.User;
+import de.fh.dortmund.models.Answer;
+import de.fh.dortmund.models.Question;
+import de.fh.dortmund.models.User;
 import de.fh.dortmund.service.POST;
 
 import java.time.LocalDateTime;

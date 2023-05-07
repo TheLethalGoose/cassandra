@@ -2,8 +2,8 @@ package de.fh.dortmund.fakedata.destroyer.post;
 
 import com.datastax.driver.core.Session;
 import de.fh.dortmund.helper.Timer;
-import de.fh.dortmund.model.Answer;
-import de.fh.dortmund.model.Question;
+import de.fh.dortmund.models.Answer;
+import de.fh.dortmund.models.Question;
 import de.fh.dortmund.service.DELETE;
 
 import java.util.List;
