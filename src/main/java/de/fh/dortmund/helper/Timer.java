@@ -19,6 +19,17 @@ public class Timer {
 
 	@Override
 	public String toString() {
-		return getElapsedTime() + "ms";
+
+		long duration = getElapsedTime();
+
+		if(duration > 60000) {
+			return (duration / 60000) + "min";
+		}
+
+		if(duration > 1000) {
+			return (duration / 1000 )+ "sek";
+		}
+
+		return duration + "ms";
 	}
 }
