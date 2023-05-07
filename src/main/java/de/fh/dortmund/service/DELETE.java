@@ -26,7 +26,7 @@ public class DELETE extends REST{
         return JsonConverter.resultSetToJsonArray(resultSet);
     }
     public JsonArray removeAnswer(Answer answer){
-        ResultSet resultSet = removeAnswer(UUID.fromString(answer.getIdParent()), UUID.fromString(answer.getId()));
+        ResultSet resultSet = removeAnswer(UUID.fromString(answer.getParentPostId()), UUID.fromString(answer.getId()));
         return JsonConverter.resultSetToJsonArray(resultSet);
     }
     public JsonArray removeQuestion(Question question){

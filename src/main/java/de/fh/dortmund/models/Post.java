@@ -32,7 +32,7 @@ public abstract class Post {
     private PostType postType;
 
     @SerializedName("IdParent")
-    private String idParent;
+    private String parentPostId;
 
     public Post(String userId, String content, PostType postType, String idParent, String createdAt, String modifiedAt){
         this.id = String.valueOf(UUID.randomUUID());
@@ -41,7 +41,7 @@ public abstract class Post {
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
         this.postType = postType;
-        this.idParent = idParent;
+        this.parentPostId = idParent;
     }
     public Post(String userId, String content, PostType postType, String idParent){
         this.id = String.valueOf(UUID.randomUUID());
@@ -50,6 +50,6 @@ public abstract class Post {
         this.createdAt = String.valueOf(LocalDateTime.now());
         this.modifiedAt = String.valueOf(LocalDateTime.now());
         this.postType = postType;
-        this.idParent = idParent;
+        this.parentPostId = idParent;
     }
 }

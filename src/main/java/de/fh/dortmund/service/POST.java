@@ -11,6 +11,7 @@ import de.fh.dortmund.models.User;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -32,38 +33,38 @@ public class POST extends REST {
 
 	public JsonArray createAnswer(Answer answer, Question question){
 
-		ResultSet resultSet = createAnswer(UUID.fromString(answer.getId()), UUID.fromString(question.getId()), UUID.fromString(answer.getId()), LocalDateTime.parse(answer.getCreatedAt()), LocalDateTime.parse(answer.getModifiedAt()), answer.isAccepted(), answer.getContent(), 0);
+		ResultSet resultSet = createAnswer(UUID.fromString(answer.getId()), UUID.fromString(question.getId()), UUID.fromString(answer.getId()), answer.getCreatedAt(), answer.getModifiedAt(), answer.isAccepted(), answer.getContent(), 0);
 
 		return JsonConverter.resultSetToJsonArray(resultSet);
 	}
 	public JsonArray createAnswer(Answer answer, UUID idQuestion, int votes){
 
-		ResultSet resultSet = createAnswer(UUID.fromString(answer.getId()), idQuestion, UUID.fromString(answer.getId()), LocalDateTime.parse(answer.getCreatedAt()), LocalDateTime.parse(answer.getModifiedAt()), answer.isAccepted(), answer.getContent(), votes);
+		ResultSet resultSet = createAnswer(UUID.fromString(answer.getId()), idQuestion, UUID.fromString(answer.getId()), answer.getCreatedAt(), answer.getModifiedAt(), answer.isAccepted(), answer.getContent(), votes);
 
 		return JsonConverter.resultSetToJsonArray(resultSet);
 	}
 	public JsonArray createAnswer(Answer answer, Question question, int votes){
 
-		ResultSet resultSet = createAnswer(UUID.fromString(answer.getId()), UUID.fromString(question.getId()), UUID.fromString(answer.getId()), LocalDateTime.parse(answer.getCreatedAt()), LocalDateTime.parse(answer.getModifiedAt()), answer.isAccepted(), answer.getContent(), votes);
+		ResultSet resultSet = createAnswer(UUID.fromString(answer.getId()), UUID.fromString(question.getId()), UUID.fromString(answer.getId()), answer.getCreatedAt(), answer.getModifiedAt(), answer.isAccepted(), answer.getContent(), votes);
 
 		return JsonConverter.resultSetToJsonArray(resultSet);
 	}
 
 	public JsonArray createQuestion(Question question, Set<Tag> tags){
 
-		ResultSet resultSet = createQuestion(UUID.fromString(question.getId()), question.getTitle(), question.getContent(), UUID.fromString(question.getUserId()), LocalDateTime.parse(question.getCreatedAt()), LocalDateTime.parse(question.getModifiedAt()), tags, null,  0, 0, 0);
+		ResultSet resultSet = createQuestion(UUID.fromString(question.getId()), question.getTitle(), question.getContent(), UUID.fromString(question.getUserId()), question.getCreatedAt(), question.getModifiedAt(), tags, null,  0, 0, 0);
 
 		return JsonConverter.resultSetToJsonArray(resultSet);
 	}
 	public JsonArray createQuestion(Question question, Set<Tag> tags, Set<String> linkedQuestions) {
 
-		ResultSet resultSet = createQuestion(UUID.fromString(question.getId()), question.getTitle(), question.getContent(), UUID.fromString(question.getUserId()), LocalDateTime.parse(question.getCreatedAt()), LocalDateTime.parse(question.getModifiedAt()), tags, linkedQuestions,  0, 0, 0);
+		ResultSet resultSet = createQuestion(UUID.fromString(question.getId()), question.getTitle(), question.getContent(), UUID.fromString(question.getUserId()), question.getCreatedAt(), question.getModifiedAt(), tags, linkedQuestions,  0, 0, 0);
 
 		return JsonConverter.resultSetToJsonArray(resultSet);
 	}
 	public JsonArray createQuestion(Question question, Set<Tag> tags, int votes, int views, int answers) {
 
-		ResultSet resultSet = createQuestion(UUID.fromString(question.getId()), question.getTitle(), question.getContent(), UUID.fromString(question.getUserId()), LocalDateTime.parse(question.getCreatedAt()), LocalDateTime.parse(question.getModifiedAt()), tags, null, views, votes, answers);
+		ResultSet resultSet = createQuestion(UUID.fromString(question.getId()), question.getTitle(), question.getContent(), UUID.fromString(question.getUserId()), question.getCreatedAt(), question.getModifiedAt(), tags, null, views, votes, answers);
 
 		return JsonConverter.resultSetToJsonArray(resultSet);
 	}
@@ -92,8 +93,18 @@ public class POST extends REST {
 
 	}
 
-	private ResultSet createQuestion(UUID uuid, String title, String content, UUID idUser, LocalDateTime createdAt, LocalDateTime modifiedAt, Set<Tag> tags, Set<String> linkedQuestions, int views, int votes, int answers) {
+	private ResultSet createQuestion(UUID uuid, String title, String content, UUID idUser, String createdAtString, String modifiedAtString, Set<Tag> tags, Set<String> linkedQuestions, int views, int votes, int answers) {
 		timer.start();
+
+		if (!createdAtString.contains("T")) {
+			createdAtString = createdAtString.replace(" ", "T");
+		}
+		if (!modifiedAtString.contains("T")) {
+			modifiedAtString = modifiedAtString.replace(" ", "T");
+		}
+
+		LocalDateTime createdAt = LocalDateTime.parse(createdAtString);
+		LocalDateTime modifiedAt = LocalDateTime.parse(modifiedAtString);;
 
 		Timestamp createdAtTimeStamp = Timestamp.valueOf(createdAt);
 		Timestamp modifiedAtTimeStamp = Timestamp.valueOf(modifiedAt);
@@ -161,8 +172,18 @@ public class POST extends REST {
 
 	}
 
-	private ResultSet createAnswer(UUID idAnswer, UUID idQuestion, UUID user, LocalDateTime createdAt, LocalDateTime modifiedAt, boolean accepted, String answerText, int votes){
+	private ResultSet createAnswer(UUID idAnswer, UUID idQuestion, UUID user, String createdAtString, String modifiedAtString, boolean accepted, String answerText, int votes){
 		timer.start();
+
+		if (!createdAtString.contains("T")) {
+			createdAtString = createdAtString.replace(" ", "T");
+		}
+		if (!modifiedAtString.contains("T")) {
+			modifiedAtString = modifiedAtString.replace(" ", "T");
+		}
+
+		LocalDateTime createdAt = LocalDateTime.parse(createdAtString);
+		LocalDateTime modifiedAt = LocalDateTime.parse(modifiedAtString);;
 
 		Timestamp createdAtTimestamp = Timestamp.valueOf(createdAt);
 		Timestamp modifiedAtTimestamp = Timestamp.valueOf(modifiedAt);
