@@ -17,6 +17,20 @@ public class Timer {
 		return endTime - startTime;
 	}
 
+	public static String convertMilliSeconds(long ms){
+
+		if(ms > 60000) {
+			return (ms / 60000) + "min";
+		}
+
+		if(ms > 1000) {
+			return (ms / 1000 )+ "sek";
+		}
+
+		return ms + "ms";
+	}
+
+
 	@Override
 	public String toString() {
 
