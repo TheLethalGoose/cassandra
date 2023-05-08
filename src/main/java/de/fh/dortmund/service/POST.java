@@ -170,7 +170,7 @@ public class POST extends REST {
 
 	}
 
-	private ResultSet createAnswer(UUID idAnswer, UUID idQuestion, UUID user, String createdAtString, String modifiedAtString, boolean accepted, String answerText, int votes){
+	public ResultSet createAnswer(UUID idAnswer, UUID idQuestion, UUID user, String createdAtString, String modifiedAtString, boolean accepted, String answerText, int votes){
 		timer.start();
 
 		if (!createdAtString.contains("T")) {
