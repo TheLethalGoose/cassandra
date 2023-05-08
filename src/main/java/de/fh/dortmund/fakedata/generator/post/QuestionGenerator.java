@@ -18,27 +18,29 @@ public class QuestionGenerator {
 	static Timer timer = new Timer();
 	static Random random = new Random();
 
-	public static List<Question> generateQuestions(Session session, int amount, List<User> users, Set<Tag> tags) {
+	public static long generateQuestions(Session session, List<Question> questionsRef, List<User> usersRef, Set<Tag> tagsRef, int amount, int tagAmount, boolean debug) {
 
-		if(users.isEmpty()){
+		if(usersRef.isEmpty()){
 			System.out.println("No users found. Please create users first.");
-			return null;
+			return -1;
 		}
 
 		List<Question> questions = new ArrayList<>();
 		POST POST = new POST(session, false);
 
-
 		timer.start();
+
 		for (int i = 0; i < amount; i++) {
 
-			int tagsToGenerate = random.nextInt(10) + 1;
-			int randomUserIndex = (int)(Math.random() * users.size());
+			int tagsToGenerate = random.nextInt(tagAmount) + 1;
+			//int tagsToGenerate = tagAmount;
+
+			int randomUserIndex = (int)(Math.random() * usersRef.size());
 			Set<Tag> tagsToQuestion = new HashSet<>();
 
 			String title = faker.lorem().sentence();
 			String body = faker.lorem().paragraph();
-			String userId = users.get(randomUserIndex).getId();
+			String userId = usersRef.get(randomUserIndex).getId();
 			int views = faker.number().numberBetween(0, 10000);
 			int votes = faker.number().numberBetween(-100, 10000);
 
@@ -51,18 +53,23 @@ public class QuestionGenerator {
 				String tagInfo = faker.lorem().sentence();
 				Tag newTag = new Tag(tagName, tagInfo);
 
-				tags.add(newTag);
+				tagsRef.add(newTag);
 				tagsToQuestion.add(newTag);
 			}
 
 			Question newQuestion = new Question(userId, title, body, createdAt.toString(), modifiedAt.toString());
-			questions.add(newQuestion);
+			questionsRef.add(newQuestion);
 			POST.createQuestion(newQuestion, tagsToQuestion, views, votes,0);
 
 		}
-		System.out.println("Created " + amount + " questions in " + timer);
 
-		return questions;
+		long timeToCreate = timer.getElapsedTime();
+
+		if (debug){
+			System.out.println("Created " + amount + " questions in " + timeToCreate);
+		}
+
+		return timer.getElapsedTime();
 
 	}
 
