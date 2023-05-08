@@ -14,23 +14,38 @@ public class QuestionDestroyer {
     static Timer timer = new Timer();
     static Random random = new Random();
 
-    public static void destroyQuestions(Session session, List<Question> questions, List<Answer> answers, int amount) {
+    public static long destroyQuestions(Session session, List<Question> questionsRef, List<Answer> answersRef, int amount, boolean debug) {
 
-        if(questions.isEmpty() || questions.size() < amount) {
+        if(questionsRef.isEmpty() || questionsRef.size() < amount) {
             System.out.println("No questions found or amount to big. Please create questions first.");
-            return;
+            return -1;
         }
 
         DELETE DELETE = new DELETE(session, false);
         timer.start();
 
         for (int i = 0; i < amount; i++) {
-            int indexToRemove = random.nextInt(questions.size());
-            Question victim = questions.remove(indexToRemove);
+            int indexToRemove = random.nextInt(questionsRef.size());
+            Question victim = questionsRef.remove(indexToRemove);
             DELETE.removeQuestion(victim);
+
+            for (int j = 0; j < answersRef.size(); j++) {
+
+                if(answersRef.get(j).getParentPostId().equals(victim.getId())) {
+                    Answer answer = answersRef.remove(j);
+                    DELETE.removeAnswer(answer);
+                }
+            }
+
         }
 
-        System.out.println("Removed " + amount + " questions in " + timer);
+        long timeToDestroy = timer.getElapsedTime();
+
+        if(debug) {
+            System.out.println("Removed " + amount + " questions in " + timeToDestroy + " ms");
+        }
+
+        return timeToDestroy;
 
     }
 

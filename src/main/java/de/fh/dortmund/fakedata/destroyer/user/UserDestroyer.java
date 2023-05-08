@@ -13,23 +13,29 @@ public class UserDestroyer {
     static Timer timer = new Timer();
     static Random random = new Random();
 
-    public static void destroyUsers(Session session, List<User> users, int amount) {
+    public static long destroyUsers(Session session, List<User> usersRef, int amount, boolean debug) {
 
-        if(users.isEmpty() || users.size() < amount) {
+        if(usersRef.isEmpty() || usersRef.size() < amount) {
             System.out.println("No users found or amount to big. Please create users first.");
-            return;
+            return -1;
         }
 
         DELETE DELETE = new DELETE(session, false);
         timer.start();
 
         for (int i = 0; i < amount; i++) {
-            int indexToRemove = random.nextInt(users.size());
-            User victim = users.remove(indexToRemove);
+            int indexToRemove = random.nextInt(usersRef.size());
+            User victim = usersRef.remove(indexToRemove);
             DELETE.removeUser(victim);
         }
 
-        System.out.println("Removed " + amount + " users in " + timer);
+        long timeToDestroy = timer.getElapsedTime();
+
+        if(debug){
+            System.out.println("Removed " + amount + " users in " + timeToDestroy + " ms");
+        }
+
+        return timeToDestroy;
 
     }
 }

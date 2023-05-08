@@ -13,23 +13,29 @@ public class AnswerDestroyer {
     static Timer timer = new Timer();
     static Random random = new Random();
 
-    public static void destroyAnswers(Session session, List<Answer> answers, int amount) {
+    public static long destroyAnswers(Session session, List<Answer> answersRef, int amount, boolean debug) {
 
-        if(answers.isEmpty() || answers.size() < amount) {
+        if(answersRef.isEmpty() || answersRef.size() < amount) {
             System.out.println("No answers found or amount to big. Please create answers first.");
-            return;
+            return -1;
         }
 
         DELETE DELETE = new DELETE(session, false);
         timer.start();
 
         for (int i = 0; i < amount; i++) {
-            int indexToRemove = random.nextInt(answers.size());
-            Answer victim = answers.remove(indexToRemove);
+            int indexToRemove = random.nextInt(answersRef.size());
+            Answer victim = answersRef.remove(indexToRemove);
             DELETE.removeAnswer(victim);
         }
 
-        System.out.println("Removed " + amount + " answers in " + timer);
+        long timeToDestroy = timer.getElapsedTime();
+
+        if(debug) {
+            System.out.println("Removed " + amount + " answers in " + timeToDestroy + " ms");
+        }
+
+        return timeToDestroy;
 
     }
 
