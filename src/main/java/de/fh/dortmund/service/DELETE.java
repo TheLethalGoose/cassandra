@@ -46,7 +46,7 @@ public class DELETE extends REST{
         ResultSet resultSet = removeQuestion(UUID.fromString(question.getUserId()), UUID.fromString(question.getId()), tags, LocalDateTime.parse(question.getCreatedAt()));
         return JsonConverter.resultSetToJsonArray(resultSet);
     }
-    private ResultSet removeAnswer(UUID idQuestion, UUID idAnswer) {
+    public ResultSet removeAnswer(UUID idQuestion, UUID idAnswer) {
         timer.start();
 
         // Löschen der Antwort in der Tabelle "answers_by_question"

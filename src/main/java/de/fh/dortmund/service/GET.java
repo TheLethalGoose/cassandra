@@ -11,6 +11,7 @@ import de.fh.dortmund.models.Post;
 import de.fh.dortmund.models.Question;
 import de.fh.dortmund.models.Tag;
 import de.fh.dortmund.models.User;
+import de.fh.dortmund.models.enums.PostType;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -120,16 +121,35 @@ public class GET extends REST {
     }
 
     public JsonArray getValuesFromPost(Post post, Set<String> columnNames){
-        return getValuesFromPost(UUID.fromString(post.getId()), columnNames);
+
+        if(post.getPostType() == PostType.ANSWER){
+            return getValuesFromAnswer(UUID.fromString(post.getId()), UUID.fromString(post.getParentPostId()), columnNames);
+        }
+        if(post.getPostType()  == PostType.QUESTION){
+            return getValuesFromQuestion(UUID.fromString(post.getId()), columnNames);
+        }
+        return null;
     }
-    public JsonArray getValuesFromPost(UUID idPost, Set<String> columnNames){
+    public JsonArray getValuesFromAnswer(UUID idAnswer, UUID idParentPost, Set<String> columnNames){
         timer.start();
 
-        String getTotalVotesOnQuestionQuery = "SELECT " + String.join(", ", columnNames) +  " FROM stackoverflow.question WHERE idQuestion = " + idPost;
-        ResultSet resultSet = session.execute(getTotalVotesOnQuestionQuery);
+        String getTotalValuesToAnswerQuery = "SELECT " + String.join(", ", columnNames) +  " FROM stackoverflow.answers_by_question WHERE idAnswer = " + idAnswer + " AND idQuestion = " + idParentPost;
+        ResultSet resultSet = session.execute(getTotalValuesToAnswerQuery);
 
         if(debug) {
-            System.out.println("Query getTotalVotesOnQuestion completed in: " + timer);
+            System.out.println("Query getTotalValuesFromQuestion completed in: " + timer);
+        }
+
+        return JsonConverter.resultSetToJsonArray(resultSet);
+    }
+    public JsonArray getValuesFromQuestion(UUID idPost, Set<String> columnNames){
+        timer.start();
+
+        String getTotalValuesToQuestionQuery = "SELECT " + String.join(", ", columnNames) +  " FROM stackoverflow.question WHERE idQuestion = " + idPost;
+        ResultSet resultSet = session.execute(getTotalValuesToQuestionQuery);
+
+        if(debug) {
+            System.out.println("Query getTotalValuesFromQuestion completed in: " + timer);
         }
 
         return JsonConverter.resultSetToJsonArray(resultSet);
