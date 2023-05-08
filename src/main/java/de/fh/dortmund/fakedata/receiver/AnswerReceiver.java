@@ -21,8 +21,8 @@ public class AnswerReceiver {
         GET get = new GET(session, false);
 
         for(int i = 0; i < iterations; i++){
-            timer.start();
             Question question = questions.get(random.nextInt(questions.size()));
+            timer.start();
             get.getAnswersByQuestion(question);
             long time = timer.getElapsedTime();
             times[i] = time;

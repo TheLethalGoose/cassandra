@@ -21,8 +21,8 @@ public class UserReceiver {
         GET get = new GET(session, false);
 
         for(int i = 0; i < iterations; i++){
-            timer.start();
             User user = users.get(random.nextInt(users.size()));
+            timer.start();
             get.findUser(user);
             long time = timer.getElapsedTime();
             times[i] = time;
@@ -36,8 +36,8 @@ public class UserReceiver {
         GET get = new GET(session, false);
 
         for(int i = 0; i < iterations; i++){
-            timer.start();
             User user = users.get(random.nextInt(users.size()));
+            timer.start();
             get.getUserByEmail(user.getEmail());
             long time = timer.getElapsedTime();
             times[i] = time;
