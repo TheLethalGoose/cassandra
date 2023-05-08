@@ -26,6 +26,7 @@ public class GET extends REST {
     }
 
     PreparedStatement getTagsFromQuestionStatement = session.prepare("SELECT tags FROM stackoverflow.question WHERE idQuestion = ?");
+    PreparedStatement getQuestionStatement = session.prepare("SELECT * FROM stackoverflow.question WHERE idQuestion = ?");
     PreparedStatement getQuestionsByTagStatement = session.prepare("SELECT * FROM stackoverflow.questions_by_tag WHERE tagName = ?");
     PreparedStatement getQuestionsByUserStatement = session.prepare("SELECT * FROM stackoverflow.questions_by_user WHERE idUser = ?");
     PreparedStatement getAnswersByQuestionStatement = session.prepare("SELECT * FROM stackoverflow.answers_by_question WHERE idQuestion = ?");
@@ -77,6 +78,22 @@ public class GET extends REST {
 
         if(debug) {
             System.out.println("Query getQuestionsByUser completed in: " + timer);
+        }
+
+        return JsonConverter.resultSetToJsonArray(resultSet);
+    }
+
+    public JsonArray getQuestion(Question question){
+        return getQuestion(UUID.fromString(question.getId()));
+    }
+    public JsonArray getQuestion(UUID uuid){
+        timer.start();
+
+        BoundStatement getQuestionBoundStatement = getQuestionStatement.bind(uuid);
+        ResultSet resultSet = session.execute(getQuestionBoundStatement);
+
+        if(debug) {
+            System.out.println("Query getQuestion completed in: " + timer);
         }
 
         return JsonConverter.resultSetToJsonArray(resultSet);
