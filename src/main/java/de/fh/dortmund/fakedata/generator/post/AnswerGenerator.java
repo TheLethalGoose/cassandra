@@ -39,7 +39,9 @@ public class AnswerGenerator {
             User user = users.get(randomUserIndex);
             Question question = questions.get(randomQuestionIndex);
             int votes = faker.number().numberBetween(-100, 1000);
-            boolean accepted = faker.bool().bool();
+
+            //boolean accepted = faker.bool().bool();
+            boolean accepted = false;
 
             LocalDateTime createdAt = LocalDateTimeGenerator.generateRandomLocalDateTimeAfter(LocalDateTime.parse(question.getCreatedAt()));
             LocalDateTime modifiedAt = LocalDateTimeGenerator.generateRandomLocalDateTimeAfter(createdAt);
