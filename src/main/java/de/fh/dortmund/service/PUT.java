@@ -9,7 +9,9 @@ import de.fh.dortmund.models.enums.VoteType;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class PUT extends REST{
@@ -17,31 +19,63 @@ public class PUT extends REST{
         super(session, debug);
     }
 
+    PreparedStatement editQuestionPreparedStatement = session.prepare("UPDATE stackoverflow.question SET content = ? WHERE idQuestion = ?");
+
     public JsonArray editQuestion(Question question, String alteredContent){
-        //TODO
-        return null;
+        return editQuestion(UUID.fromString(question.getId()), alteredContent);
     }
     public JsonArray editQuestion(UUID idQuestion, String alteredContent){
-        //TODO
-        return null;
+
+        timer.start();
+
+        BoundStatement editQuestionBoundStatement = editQuestionPreparedStatement.bind(alteredContent, idQuestion);
+        ResultSet resultSet = session.execute(editQuestionBoundStatement);
+
+        if (debug) {
+            System.out.println("Edited question in " + timer);
+        }
+
+        return JsonConverter.resultSetToJsonArray(resultSet);
+
     }
 
     public JsonArray markAnswerAsAccepted(Answer answer){
-        return markAnswerAsAccepted(UUID.fromString(answer.getId()), UUID.fromString(answer.getParentPostId()), LocalDateTime.parse(answer.getCreatedAt()));
-    }
-    public JsonArray markAnswerAsAccepted(UUID idAnswer, UUID idQuestion, LocalDateTime createdAt){
-        //TODO Fix this
-        PreparedStatement preparedStatement = session.prepare("UPDATE answers_by_question SET accepted = true WHERE idAnswer = ? AND idQuestion = ? AND createdAt = ? AND accepted = false;");
-        BoundStatement boundStatement = preparedStatement.bind(idAnswer, idQuestion, Timestamp.valueOf(createdAt));
-        return JsonConverter.resultSetToJsonArray(session.execute(boundStatement));
-    }
 
+        if(answer.isAccepted()){
+            System.out.println("Answer is already accepted");
+            return new JsonArray();
+        }
+        answer.setAccepted(true);
+        return markAnswerAsAccepted(UUID.fromString(answer.getId()), UUID.fromString(answer.getParentPostId()), UUID.fromString(answer.getUserId()), answer.getCreatedAt(), answer.getModifiedAt(), answer.isAccepted(), answer.getContent());
+    }
+    public JsonArray markAnswerAsAccepted(UUID idAnswer, UUID idParentPost, UUID user, String createdAtString, String modifiedAtString, boolean accepted, String answerText){
+
+        DELETE DELETE = new DELETE(session, false);
+        POST POST = new POST(session, false);
+        GET GET = new GET(session, false);
+
+        timer.start();
+
+        int votesToAnswer = GET.getValuesFromAnswer(idAnswer, idParentPost, Collections.singleton("votes")).get(0).getAsJsonObject().get("votes").getAsInt();
+        DELETE.removeAnswer(idAnswer, idParentPost);
+        ResultSet resultSet = POST.createAnswer(idAnswer,idParentPost,user, createdAtString, modifiedAtString, accepted , answerText, votesToAnswer);
+
+        if (debug) {
+            System.out.println("Marked answer as accepted in " + timer);
+        }
+
+        return JsonConverter.resultSetToJsonArray(resultSet);
+    }
     public JsonArray vote(Post post, Vote vote){
+        return vote(post, vote.getVoteType());
+    }
 
-        if(vote.getVoteType() == VoteType.UPVOTE) {
+    public JsonArray vote(Post post, VoteType voteType){
+
+        if(voteType == VoteType.UPVOTE) {
             return increaseValueToPostUPDATE(post, "votes", 1);
         }
-        else if(vote.getVoteType() == VoteType.DOWNVOTE){
+        else if(voteType == VoteType.DOWNVOTE){
             return increaseValueToPostUPDATE(post, "votes", -1);
         }
         else{
@@ -88,7 +122,7 @@ public class PUT extends REST{
 
 
         if(debug){
-            System.out.println("Using UPDATE: Increased answers to question by " + byValue + " in " + timer);
+            System.out.println("Using UPDATE: Increased " + columnName + " to question by " + byValue + " in " + timer);
         }
 
         return JsonConverter.resultSetToJsonArray(resultSet);
