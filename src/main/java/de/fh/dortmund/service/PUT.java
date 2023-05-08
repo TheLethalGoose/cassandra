@@ -42,9 +42,12 @@ public class PUT extends REST{
     public JsonArray markAnswerAsAccepted(Answer answer){
 
         if(answer.isAccepted()){
-            System.out.println("Answer is already accepted");
+            if(debug) {
+                System.out.println("Answer is already accepted");
+            }
             return new JsonArray();
         }
+
         answer.setAccepted(true);
         return markAnswerAsAccepted(UUID.fromString(answer.getId()), UUID.fromString(answer.getParentPostId()), UUID.fromString(answer.getUserId()), answer.getCreatedAt(), answer.getModifiedAt(), answer.isAccepted(), answer.getContent());
     }
