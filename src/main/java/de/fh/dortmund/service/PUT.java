@@ -69,32 +69,45 @@ public class PUT extends REST{
 
         return JsonConverter.resultSetToJsonArray(resultSet);
     }
-    public JsonArray vote(Post post, Vote vote){
-        return vote(post, vote.getVoteType());
+    public JsonArray vote(Question question, Vote vote){
+        return voteByUpdate(question, vote.getVoteType());
     }
 
-    public JsonArray vote(Post post, VoteType voteType){
+    public JsonArray voteByUpdate(Question question, VoteType voteType){
 
         if(voteType == VoteType.UPVOTE) {
-            return increaseValueToPostUPDATE(post, "votes", 1);
+            return increaseValueToQuestionUPDATE(question, "votes", 1);
         }
         else if(voteType == VoteType.DOWNVOTE){
-            return increaseValueToPostUPDATE(post, "votes", -1);
+            return increaseValueToQuestionUPDATE(question, "votes", -1);
         }
         else{
             return null;
         }
     }
 
-    public JsonArray increaseValueToPostUPDATE(Post post, String columnName, int byValue){
+    public JsonArray voteByInsert(Question question, VoteType voteType){
+
+        if(voteType == VoteType.UPVOTE) {
+            return increaseValueToQuestionINSERT(question, "votes", 1);
+        }
+        else if(voteType == VoteType.DOWNVOTE){
+            return increaseValueToQuestionINSERT(question, "votes", -1);
+        }
+        else{
+            return null;
+        }
+    }
+
+    public JsonArray increaseValueToQuestionUPDATE(Question question, String columnName, int byValue){
 
         GET GET = new GET(session, false);
 
         timer.start();
 
-        int increasedValue = GET.getValuesFromPost(post, Collections.singleton(columnName)).get(0).getAsJsonObject().get(columnName).getAsInt() + byValue;
-        JsonArray tags = GET.getTagsFromQuestion(UUID.fromString(post.getId()));
-        Timestamp createdAtTimeStamp = Timestamp.valueOf(LocalDateTime.parse(post.getCreatedAt()));
+        int increasedValue = GET.getValuesFromPost(question, Collections.singleton(columnName)).get(0).getAsJsonObject().get(columnName).getAsInt() + byValue;
+        JsonArray tags = GET.getTagsFromQuestion(UUID.fromString(question.getId()));
+        Timestamp createdAtTimeStamp = Timestamp.valueOf(LocalDateTime.parse(question.getCreatedAt()));
 
         String dateString = createdAtTimeStamp.toString().substring(0, 10).replace("-", "");
 
@@ -102,7 +115,7 @@ public class PUT extends REST{
         for(JsonElement tag : tags){
             String increaseValueInQuestionsByTag = "UPDATE stackoverflow.questions_by_tag SET " + columnName + " = ? WHERE tagName = ? AND idQuestion = ? AND createdAt = ?";
             PreparedStatement preparedStatementIncreaseValueInQuestionsByTag = session.prepare(increaseValueInQuestionsByTag);
-            BoundStatement boundStatementIncreaseValueInQuestionsByTag = preparedStatementIncreaseValueInQuestionsByTag.bind(increasedValue, tag.getAsString(), UUID.fromString(post.getId()), Timestamp.valueOf(LocalDateTime.parse(post.getCreatedAt())));
+            BoundStatement boundStatementIncreaseValueInQuestionsByTag = preparedStatementIncreaseValueInQuestionsByTag.bind(increasedValue, tag.getAsString(), UUID.fromString(question.getId()), Timestamp.valueOf(LocalDateTime.parse(question.getCreatedAt())));
             session.execute(boundStatementIncreaseValueInQuestionsByTag);
         }
 
@@ -117,22 +130,22 @@ public class PUT extends REST{
 
         BatchStatement batch = new BatchStatement(BatchStatement.Type.LOGGED);
 
-        batch.add(preparedStatementIncreaseValueInQuestion.bind(increasedValue, UUID.fromString(post.getId())));
-        batch.add(preparedStatementIncreaseValueInQuestionByUser.bind(increasedValue, UUID.fromString(post.getUserId()), UUID.fromString(post.getId()), createdAtTimeStamp));
-        batch.add(preparedStatementIncreaseValueInLatestQuestion.bind(increasedValue, dateString, UUID.fromString(post.getId()), createdAtTimeStamp));
+        batch.add(preparedStatementIncreaseValueInQuestion.bind(increasedValue, UUID.fromString(question.getId())));
+        batch.add(preparedStatementIncreaseValueInQuestionByUser.bind(increasedValue, UUID.fromString(question.getUserId()), UUID.fromString(question.getId()), createdAtTimeStamp));
+        batch.add(preparedStatementIncreaseValueInLatestQuestion.bind(increasedValue, dateString, UUID.fromString(question.getId()), createdAtTimeStamp));
 
         ResultSet resultSet = session.execute(batch);
 
 
         if(debug){
-            System.out.println("Using UPDATE: Increased " + columnName + " to question by " + byValue + " in " + timer);
+            System.out.println("Using UPDATE: Increased " + columnName + " to post by " + byValue + " in " + timer);
         }
 
         return JsonConverter.resultSetToJsonArray(resultSet);
 
     }
 
-    public JsonArray increaseValueToPostINSERT(Question question, String columnName, int byValue){
+    public JsonArray increaseValueToQuestionINSERT(Question question, String columnName, int byValue){
 
         GET GET = new GET(session, false);
         POST POST = new POST(session, false);
