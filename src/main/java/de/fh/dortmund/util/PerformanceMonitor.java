@@ -5,6 +5,8 @@ import de.fh.dortmund.cassandra.CassandraInitializer;
 import de.fh.dortmund.fakedata.destroyer.post.AnswerDestroyer;
 import de.fh.dortmund.fakedata.destroyer.post.QuestionDestroyer;
 import de.fh.dortmund.fakedata.destroyer.user.UserDestroyer;
+import de.fh.dortmund.fakedata.editor.AnswerEditor;
+import de.fh.dortmund.fakedata.editor.QuestionEditor;
 import de.fh.dortmund.fakedata.generator.post.AnswerGenerator;
 import de.fh.dortmund.fakedata.generator.post.QuestionGenerator;
 import de.fh.dortmund.fakedata.generator.user.UserGenerator;
@@ -59,27 +61,30 @@ public class PerformanceMonitor {
         destroyedAnswersInTimes = new long[ddlIterations];
         timesToGenerate = new long[ddlIterations];
         timesToDestroy = new long[ddlIterations];
-
     }
-
-
     public void runPerformanceTest(){
 
         System.out.println("Starting performance test on cassandra stackoverflow database");
         CassandraInitializer.flushData(session, "stackoverflow");
-
-        createAndDestroyDataTest(10, 1500, 2000, 2, 500, 1000, 5);
         System.out.println("------------------------------------------------------------------");
-        fetchDataTest(1000, 1000, 2000, 5);
-    }
 
-    public void createAndDestroyDataTest(int usersToGenerate, int questionsToGenerate, int answersToGenerate, int tagsToGenerate, int questionsToDestroy, int answersToDestroy, int usersToDestroy){
+        //Create and destroy data test
+        createAndDestroyDataTest(10, 1500, 2000, 2, 500, 1000, 5);
+
+        //Fetch and edit data test
+        generateTestData(1000, 1000, 2000, 5);
+
+        fetchDataTest();
+        editDataTest();
+
+    }
+    private void createAndDestroyDataTest(int usersToGenerate, int questionsToGenerate, int answersToGenerate, int tagsToGenerate, int questionsToDestroy, int answersToDestroy, int usersToDestroy){
 
         Timer timer = new Timer();
 
         for(int i = 0; i < ddlIterations; i++){
 
-            System.out.println("Create/remove Iteration " + (i+1) + " of " + ddlIterations);
+            System.out.println("Create/Remove Iteration " + (i+1) + " of " + ddlIterations);
 
             timer.start();
 
@@ -150,24 +155,44 @@ public class PerformanceMonitor {
 
         }
 
+        System.out.println("------------------------------------------------------------------");
+
+    }
+    private void fetchDataTest(){
+
+        System.out.println("Starting fetch data test");
+
+        System.out.println("Median time to fetch users by their UUID of " + fetchIterations + " iterations: " + convertMilliSeconds(UserReceiver.medianTimeToFetchUsersByUUID(session, users, fetchIterations)));
+        System.out.println("Median time to fetch users by their email of " + fetchIterations + " iterations: " + convertMilliSeconds(UserReceiver.medianTimeToFetchUsersByEmail(session, users, fetchIterations)));
+
+        System.out.println("Median time to fetch questions by their UUID of " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionReceiver.medianTimeToFetchQuestionsByUUID(session, questions, fetchIterations)));
+        System.out.println("Median time to fetch questions by their creator of " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionReceiver.medianTimeToFetchQuestionsByUser(session, questions, users, fetchIterations)));
+        System.out.println("Median time to fetch questions by their tag of " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionReceiver.medianTimeToFetchQuestionsByTag(session, tags, fetchIterations)));
+        System.out.println("Median time to fetch latest questions of " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionReceiver.medianTimeToFetchLatestQuestions(session, fetchIterations)));
+        System.out.println("Median time to fetch votes by their question of " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionReceiver.medianTimeToFetchVotes(session, questions, fetchIterations)));
+
+        System.out.println("Median time to fetch answers by their question of " + fetchIterations + " iterations: " + convertMilliSeconds(AnswerReceiver.medianTimeToFetchAnswersByQuestion(session, questions, fetchIterations)));
+
+        System.out.println("------------------------------------------------------------------");
     }
 
-    private void fetchDataTest(int usersToGenerate, int questionsToGenerate, int answersToGenerate, int maxTagsToGeneratePerQuestion){
+    private void editDataTest(){
 
-        System.out.println("Generating data to test fetch operations");
+        System.out.println("Starting edit data test");
+
+        System.out.println("Median time to edit content of question " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionEditor.medianTimeToEditQuestions(session, questions, fetchIterations)));
+        System.out.println("Median time to mark answer as accepted " + fetchIterations + " iterations: " + convertMilliSeconds(AnswerEditor.medianTimeToAcceptAnswer(session, answers, fetchIterations)));
+        System.out.println("Median time to upvote on a question by UPDATE " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionEditor.medianTimeToVoteUPDATE(session, questions, fetchIterations)));
+        System.out.println("Median time to downvote on a question by INSERT " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionEditor.medianTimeToVoteINSERT(session, questions, fetchIterations)));
+
+        System.out.println("------------------------------------------------------------------");
+    }
+
+    private void generateTestData(int usersToGenerate, int questionsToGenerate, int answersToGenerate, int maxTagsToGeneratePerQuestion){
+        System.out.println("Generating test data");
 
         UserGenerator.generateUsers(session,users, usersToGenerate, false);
         QuestionGenerator.generateQuestions(session, questions, users, tags, questionsToGenerate, maxTagsToGeneratePerQuestion, false);
         AnswerGenerator.generateAnswers(session, answers, users, questions, answersToGenerate, false);
-
-        System.out.println("Starting fetch test");
-
-        System.out.println("Median time to fetch users by their UUID of " + fetchIterations + " iterations: " + convertMilliSeconds(UserReceiver.medianTimeToFetchUsersByUUID(session, users, fetchIterations)));
-        System.out.println("Median time to fetch users by their email of " + fetchIterations + " iterations: " + convertMilliSeconds(UserReceiver.medianTimeToFetchUsersByEmail(session, users, fetchIterations)));
-        System.out.println("Median time to fetch questions by their UUID of " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionReceiver.medianTimeToFetchQuestionsByUUID(session, questions, fetchIterations)));
-        System.out.println("Median time to fetch questions by their creator of " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionReceiver.medianTimeToFetchQuestionsByUser(session, questions, users, fetchIterations)));
-        System.out.println("Median time to fetch questions by their tag of " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionReceiver.medianTimeToFetchQuestionsByTag(session, questions, tags, fetchIterations)));
-        System.out.println("Median time to fetch latest questions of " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionReceiver.medianTimeToFetchLatestQuestions(session, questions, fetchIterations)));
-        System.out.println("Median time to fetch answers by their question of " + fetchIterations + " iterations: " + convertMilliSeconds(AnswerReceiver.medianTimeToFetchAnswersByQuestion(session, questions, fetchIterations)));
     }
 }
