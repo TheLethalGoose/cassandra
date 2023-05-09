@@ -4,28 +4,29 @@ import com.datastax.driver.core.ColumnDefinitions;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
+
+import java.util.Set;
 
 public class JsonConverter {
 
-    Session session;
-    public JsonConverter(Session session) {
-        this.session = session;
+    public static JsonArray executeQuery(Session session, String query) {
+        ResultSet resultSet = session.execute(query);
+        return resultSetToJsonArray(resultSet);
     }
-
-    public JsonArray executeQuery(String query) {
-        ResultSet rs = session.execute(query);
+    public static JsonArray resultSetToJsonArray(ResultSet resultSet){
         JsonArray result = new JsonArray();
-        for (Row row : rs) {
+        for (Row row : resultSet) {
             JsonObject obj = new JsonObject();
-            for (ColumnDefinitions.Definition def : rs.getColumnDefinitions().asList()) {
-                obj.add(def.getName(), (JsonElement) row.getObject(def.getName()));
+            for (ColumnDefinitions.Definition def : resultSet.getColumnDefinitions().asList()) {
+                obj.add(def.getName(), new Gson().toJsonTree(row.getObject(def.getName())));
             }
             result.add(obj);
         }
         return result;
+    }
+    public static String jsonArrayToString(JsonArray jsonArray){
+        return new Gson().toJson(jsonArray);
     }
 
 }

@@ -1,19 +1,31 @@
 package de.fh.dortmund;
 
-import com.datastax.driver.core.Session;
-import de.fh.dortmund.connector.CassandraConnector;
-import de.fh.dortmund.json.JsonConverter;
+import de.fh.dortmund.cassandra.CassandraConnector;
+import de.fh.dortmund.cassandra.CassandraInitializer;
+import de.fh.dortmund.util.PerformanceMonitor;
 
 public class Main {
+
     public static void main(String[] args) {
 
+        String node = "127.0.0.1";
+        int port = 9042;
+        String keyspace = "stackoverflow";
+
         CassandraConnector connector = new CassandraConnector();
-        connector.connect("127.0.0.1", 9042);
+        connector.connect(node, port, keyspace);
 
-        Session session = connector.getSession();
+        System.out.println("Welcome to stackoverflow");
+        CassandraInitializer.init(connector.getSession(), false, false);
 
-        JsonConverter converter = new JsonConverter(session);
+        //Tombstone threshold zur Vorstellung in der Präsentation
+        //CassandraInitializer.setTombstoneThreshold(connector.getSession(),keyspace, 60);
 
+        PerformanceMonitor monitor = new PerformanceMonitor(connector.getSession(),2,100);
+        monitor.runPerformanceTest();
+
+        connector.close();
+        System.out.println("Goodbye");
 
     }
 }
