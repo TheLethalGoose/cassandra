@@ -180,10 +180,10 @@ public class PerformanceMonitor {
 
         System.out.println("Starting edit data test");
 
-        System.out.println("Median time to edit content of question " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionEditor.medianTimeToEditQuestions(session, questions, fetchIterations)));
-        System.out.println("Median time to mark answer as accepted " + fetchIterations + " iterations: " + convertMilliSeconds(AnswerEditor.medianTimeToAcceptAnswer(session, answers, fetchIterations)));
-        System.out.println("Median time to upvote on a question by UPDATE " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionEditor.medianTimeToVoteUPDATE(session, questions, fetchIterations)));
-        System.out.println("Median time to downvote on a question by INSERT " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionEditor.medianTimeToVoteINSERT(session, questions, fetchIterations)));
+        System.out.println("Median time to edit content of question of " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionEditor.medianTimeToEditQuestions(session, questions, fetchIterations)));
+        System.out.println("Median time to mark answer as accepted of " + fetchIterations + " iterations: " + convertMilliSeconds(AnswerEditor.medianTimeToAcceptAnswer(session, answers, fetchIterations)));
+        System.out.println("Median time to upvote on a question by UPDATE of " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionEditor.medianTimeToVoteUPDATE(session, questions, fetchIterations)));
+        System.out.println("Median time to downvote on a question by INSERT of " + fetchIterations + " iterations: " + convertMilliSeconds(QuestionEditor.medianTimeToVoteINSERT(session, questions, fetchIterations)));
 
         System.out.println("------------------------------------------------------------------");
     }
