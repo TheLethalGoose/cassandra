@@ -21,7 +21,7 @@ public class Main {
         //Tombstone threshold zur Vorstellung in der Präsentation
         //CassandraInitializer.setTombstoneThreshold(connector.getSession(),keyspace, 60);
 
-        PerformanceMonitor monitor = new PerformanceMonitor(connector.getSession(),2,100);
+        PerformanceMonitor monitor = new PerformanceMonitor(connector.getSession(),1,10);
         monitor.runPerformanceTest();
 
         connector.close();

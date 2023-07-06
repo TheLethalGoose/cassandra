@@ -69,10 +69,10 @@ public class PerformanceMonitor {
         System.out.println("------------------------------------------------------------------");
 
         //Create and destroy data test
-        createAndDestroyDataTest(10, 1500, 2000, 2, 500, 1000, 5);
+        createAndDestroyDataTest(100, 150, 200, 5, 50, 100, 50);
 
         //Fetch and edit data test
-        generateTestData(1000, 1000, 2000, 5);
+        generateTestData(100, 100, 200, 5);
 
         fetchDataTest();
         editDataTest();

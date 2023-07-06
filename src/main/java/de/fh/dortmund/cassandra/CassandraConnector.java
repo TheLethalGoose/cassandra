@@ -21,7 +21,7 @@ public class    CassandraConnector {
     }
 
     private void createKeySpace(Session session, String keyspace) {
-        String createKeyspace = "CREATE KEYSPACE IF NOT EXISTS stackoverflow WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1}";
+        String createKeyspace = "CREATE KEYSPACE IF NOT EXISTS " + keyspace +" WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 2}";
         session.execute(createKeyspace);
     }
 
