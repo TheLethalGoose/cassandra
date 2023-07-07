@@ -16,7 +16,7 @@ public class Main {
         connector.connect(node, port, keyspace);
 
         System.out.println("Welcome to stackoverflow");
-        CassandraInitializer.init(connector.getSession(), false, false);
+        CassandraInitializer.init(connector.getSession(), false, true);
 
         //Tombstone threshold zur Vorstellung in der Präsentation
         //CassandraInitializer.setTombstoneThreshold(connector.getSession(),keyspace, 60);
